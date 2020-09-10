@@ -30,14 +30,20 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     qDebug()<<IP.getQStrSubNetID();
     qDebug()<<"BROADCAST:";
     qDebug()<<IP.getQStrBroadCast();
-    qDebug()<<"HOSTS FREE:";
+    qDebug()<<"HOSTS PER NET:";
     qDebug()<<IP.AvailableHosts;
-    qDebug()<<"SUBNETS FREE:";
+    qDebug()<<"AVAILABLE SUBNETS:";
     qDebug()<<IP.AvailableSubnets;
+    qDebug()<<"TAG VALUE FOR SUBNETS:";
+    qDebug()<<IP.AvailableSubnetsTAG;
+    qDebug()<<"MASK VECTOR OF BITS:";
+    qDebug()<<IP.MaskVectorBits;
+    /*
     qDebug()<<"Min IP:";
     qDebug()<<IP.getQStrMinIPAdress();
     qDebug()<<"Max IP:";
     qDebug()<<IP.getQStrMaxIPAdress();
+    */
     root->insertLeaf(root, IP);
 }
 

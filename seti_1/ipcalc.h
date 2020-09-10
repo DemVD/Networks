@@ -22,6 +22,7 @@ public:
     vector<byte_t> MinIPAdress; // Минимальное значение адреса в подсети
     vector<byte_t> MaxIPAdress; // Максимальное значение адреса в подсети
     unsigned AvailableSubnets; // свободные подсети с соответствующей маской
+    unsigned AvailableSubnetsTAG; // вторичное значение
     unsigned AvailableHosts; // количество свободных адресов
 
     IPClass(); // констр-р по умолч.

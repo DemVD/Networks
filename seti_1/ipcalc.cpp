@@ -138,6 +138,7 @@ void IPClass::calcIPData(){
                 MaxIPAdress = subNetsVec[i+1];
                 MaxIPAdress[3]--;
                 AvailableSubnets = subnetsNum1;
+                AvailableSubnetsTAG = pow(2,(24+n));
                 setAvailableHosts(Mask);
                 break;
             }
@@ -163,6 +164,7 @@ void IPClass::calcIPData(){
                 MaxIPAdress = subNetsVec[i+1];
                 MaxIPAdress[3]--;
                 AvailableSubnets = subnetsNum1;
+                AvailableSubnetsTAG = pow(2,(16+n));
                 setAvailableHosts(Mask);
                 break;
             }
@@ -186,6 +188,7 @@ void IPClass::calcIPData(){
                 MaxIPAdress = subNetsVec[i+1];
                 MaxIPAdress[3]--;
                 AvailableSubnets = subnetsNum1;
+                AvailableSubnetsTAG = pow(2,(8+n));
                 setAvailableHosts(Mask);
                 break;
             }
@@ -207,6 +210,7 @@ void IPClass::calcIPData(){
                 MaxIPAdress = subNetsVec[i+1];
                 MaxIPAdress[3] = MaxIPAdress[3]-1;
                 AvailableSubnets = subnetsNum1;
+                AvailableSubnetsTAG = subnetsNum1;
                 AvailableHosts = Hosts1;
                 break;
             }
@@ -218,6 +222,7 @@ void IPClass::calcIPData(){
         MinIPAdress = IP;
         MaxIPAdress = IP;
         AvailableSubnets = 1;
+        AvailableSubnetsTAG = 1;
         AvailableHosts = 1;
         break;
     }
