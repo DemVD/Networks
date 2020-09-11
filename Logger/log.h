@@ -292,7 +292,6 @@ private:
         return buf;
     }
 };
-
 }
 
 #endif // LOG_H
