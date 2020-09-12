@@ -26,7 +26,7 @@ void subWindowEnterIP::on_buttonBox_accepted(){
     vecQStr.push_back(QString::number(ui->spinBox_3->value())); // 3rd octet
     vecQStr.push_back(QString::number(ui->spinBox_4->value())); // 4th octet
     vecQStr.push_back(QString::number(ui->spinBox_5->value())); // mask
-    vecQStr.push_back(QString::number(ui->spinBox_6->value())); // nets
+    vecQStr.push_back(QString::number(ui->spinBox_6->value())); // HOSTS!
     emit(signalSubWinRet(vecQStr)); // emit signal for main win to catch
     this->close();
 }

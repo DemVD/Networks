@@ -25,12 +25,12 @@
       </property>
       <column>
        <property name="text">
-        <string>Name</string>
+        <string>Column 1</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Data</string>
+        <string>Column 2</string>
        </property>
       </column>
      </widget>

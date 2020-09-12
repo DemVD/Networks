@@ -43,13 +43,14 @@ void IPClass::setIP(const vector<QString> vecQStr){
             qDebug()<<"ERROR: in ipcalc.cpp IP MASK value "+vecQStr[4]+" is not in range 0-32.";
         }
     }
-    if(vecQStr.size() >= 6){ // nets included
-        return;
+    if(vecQStr.size() >= 6){ // HOSTS included
+        int num = vecQStr[5].toInt();
+        UserInputHosts = num;
     }
 }
 
 void IPClass::calcMaskVectorBits(byte_t maska){
-    vector<byte_t> MaskVectorBitsTEMP(4);
+    vector<byte_t> MaskVectorBitsTEMP = {0,0,0,0};
     unsigned l,r;
     l = maska/8; // Цел.ч. от дел. - кол-во полных байтов
     r = maska%8; // Ост. ч. - биты в оставшемся байте
@@ -81,22 +82,9 @@ void IPClass::calcMaskVectorBits(byte_t maska){
             break;
         }
         MaskVectorBits = MaskVectorBitsTEMP;
-        calcIPData();
-        /*
-        setSubNetID(MaskVectorBits);
-        setAvailableHosts(Mask);
-        setMinIPAdress(SubNetID);
-        setMaxIPAdress(BroadCast);
-
-        //плохой метод, да и switch-case будет эффективнее чем вычисления.
-        byte_t b = pow(2,r); // прямое значение
-        b = ~b; // обратное
-        MaskVectorBitsTEMP[l] = b; // и чтобы не было обращения к несущ. эл-ту.
-        */
     }
     else{ // MASK == 32
         MaskVectorBits = MaskVectorBitsTEMP;
-        calcIPData();
     }
 }
 
@@ -117,18 +105,7 @@ void IPClass::calcIPData(){
     unsigned Hosts2 = Delta2 -2; // same, but for when n=0
     switch (l) {
     case 0: // mask = X.0.0.0
-        for(unsigned i=0;i<subnetsNum1;i++){
-            tempIpVec[0] = i*Delta1;
-            tempIpVec[1] = 0;
-            tempIpVec[2] = 0;
-            tempIpVec[3] = 0;
-            subNetsVec.push_back(tempIpVec);
-            tempIpVec[0] = (i+1)*Delta1-1;
-            tempIpVec[1] = 255;
-            tempIpVec[2] = 255;
-            tempIpVec[3] = 255;
-            subNetsVec.push_back(tempIpVec);
-        }
+        subNetsVec = getVectOfIPNetsInRange();
         for(unsigned i=0;i<(subNetsVec.size()-1);i+=2){
             if(IP[0] >= subNetsVec[i][0] && IP[0] <= subNetsVec[i+1][0]){
                 SubNetID = subNetsVec[i];
@@ -145,16 +122,7 @@ void IPClass::calcIPData(){
         }
         break;
     case 1: // mask = 255.X.0.0
-        for(unsigned i=0;i<subnetsNum1;i++){
-            tempIpVec[1] = i*Delta1;
-            tempIpVec[2] = 0;
-            tempIpVec[3] = 0;
-            subNetsVec.push_back(tempIpVec);
-            tempIpVec[1] = (i+1)*Delta1-1;
-            tempIpVec[2] = 255;
-            tempIpVec[3] = 255;
-            subNetsVec.push_back(tempIpVec);
-        }
+        subNetsVec = getVectOfIPNetsInRange();
         for(unsigned i=0;i<(subNetsVec.size()-1);i+=2){
             if(IP[1] >= subNetsVec[i][1] && IP[1] <= subNetsVec[i+1][1]){
                 SubNetID = subNetsVec[i];
@@ -171,14 +139,7 @@ void IPClass::calcIPData(){
         }
         break;
     case 2: // mask = 255.255.X.0
-        for(unsigned i=0;i<subnetsNum1;i++){
-            tempIpVec[2] = i*Delta1;
-            tempIpVec[3] = 0;
-            subNetsVec.push_back(tempIpVec);
-            tempIpVec[2] = (i+1)*Delta1-1;
-            tempIpVec[3] = 255;
-            subNetsVec.push_back(tempIpVec);
-        }
+        subNetsVec = getVectOfIPNetsInRange();
         for(unsigned i=0;i<(subNetsVec.size()-1);i+=2){
             if(IP[2] >= subNetsVec[i][2] && IP[2] <= subNetsVec[i+1][2]){
                 SubNetID = subNetsVec[i];
@@ -195,12 +156,7 @@ void IPClass::calcIPData(){
         }
         break;
     case 3: // mask = 255.255.255.X
-        for(unsigned i=0;i<subnetsNum1;i++){
-            tempIpVec[3] = i*Delta1;
-            subNetsVec.push_back(tempIpVec);
-            tempIpVec[3] = (i+1)*Delta1-1;
-            subNetsVec.push_back(tempIpVec);
-        }
+        subNetsVec = getVectOfIPNetsInRange();
         for(unsigned i=0;i<(subNetsVec.size()-1);i+=2){
             if(IP[3] >= subNetsVec[i][3] && IP[3] <= subNetsVec[i+1][3]){
                 SubNetID = subNetsVec[i];
@@ -226,6 +182,66 @@ void IPClass::calcIPData(){
         AvailableHosts = 1;
         break;
     }
+}
+
+vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange() const{
+    unsigned Tb = 8; // total bits
+    unsigned l = Mask/8; // Цел.ч. от дел. - кол-во полных байтов
+    unsigned n = Mask%8; // Ост. ч. - биты в оставшемся байте
+    unsigned subnetsNum1 = pow(2,n); // ammount of subnets
+    unsigned m1 = Tb - n; // bits left for host
+    unsigned Delta1 = pow(2,m1); // last bit value
+    vector<byte_t> tempIpVec = IP;
+    vector<vector<byte_t>> subNetsVec;
+    switch (l) {
+    case 0: // mask = X.0.0.0
+        for(unsigned i=0;i<subnetsNum1;i++){
+            tempIpVec[0] = i*Delta1;
+            tempIpVec[1] = 0;
+            tempIpVec[2] = 0;
+            tempIpVec[3] = 0;
+            subNetsVec.push_back(tempIpVec);
+            tempIpVec[0] = (i+1)*Delta1-1;
+            tempIpVec[1] = 255;
+            tempIpVec[2] = 255;
+            tempIpVec[3] = 255;
+            subNetsVec.push_back(tempIpVec);
+        }
+        break;
+    case 1: // mask = 255.X.0.0
+        for(unsigned i=0;i<subnetsNum1;i++){
+            tempIpVec[1] = i*Delta1;
+            tempIpVec[2] = 0;
+            tempIpVec[3] = 0;
+            subNetsVec.push_back(tempIpVec);
+            tempIpVec[1] = (i+1)*Delta1-1;
+            tempIpVec[2] = 255;
+            tempIpVec[3] = 255;
+            subNetsVec.push_back(tempIpVec);
+        }
+        break;
+    case 2: // mask = 255.255.X.0
+        for(unsigned i=0;i<subnetsNum1;i++){
+            tempIpVec[2] = i*Delta1;
+            tempIpVec[3] = 0;
+            subNetsVec.push_back(tempIpVec);
+            tempIpVec[2] = (i+1)*Delta1-1;
+            tempIpVec[3] = 255;
+            subNetsVec.push_back(tempIpVec);
+        }
+        break;
+    case 3: // mask = 255.255.255.X
+        for(unsigned i=0;i<subnetsNum1;i++){
+            tempIpVec[3] = i*Delta1;
+            subNetsVec.push_back(tempIpVec);
+            tempIpVec[3] = (i+1)*Delta1-1;
+            subNetsVec.push_back(tempIpVec);
+        }
+        break;
+    case 4: // mask = 255.255.255.255
+        break;
+    }
+    return subNetsVec;
 }
 
 // checks if IPVar is greater OR equal to the class IP
