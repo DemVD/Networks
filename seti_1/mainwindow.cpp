@@ -20,7 +20,7 @@ string MainWindow::saveToFile(){
 }
 
 void MainWindow::slotSubWinRet(vector<QString> vecQStr){
-    // POSSIBLE CHECK FOR IEEE in IPCALC CLASS
+    // POSSIBLE CHECK FOR RFC in IPCALC CLASS
     // Create IP var, calc its data, insert into widget
     empty = false;
     IPClass IP;
@@ -30,6 +30,7 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     if(IP.getUserInputHosts() <= IP.getAvailableHosts()){ // subnetting is possible
         qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
         IP.produceAdressForHosts();
+        qDebug()<<IP.getQStrIPAndMask();
         ui->statusBar->showMessage("OK.",6000);
     }
     else{ // subnetting inpossible

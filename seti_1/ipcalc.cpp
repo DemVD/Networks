@@ -49,6 +49,13 @@ void IPClass::setIP(const vector<QString> vecQStr){
     }
 }
 
+void IPClass::setIP(const vector<byte_t> vecQStr){
+    IP[0] = vecQStr[0];
+    IP[1] = vecQStr[1];
+    IP[2] = vecQStr[2];
+    IP[3] = vecQStr[3];
+}
+
 void IPClass::calcMaskVectorBits(byte_t maska){
     vector<byte_t> MaskVectorBitsTEMP = {0,0,0,0};
     unsigned l,r;
@@ -184,7 +191,7 @@ void IPClass::calcIPData(){
     }
 }
 
-vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange() const{
+vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange(bool getOnlyOnePair) const{
     unsigned Tb = 8; // total bits
     unsigned l = Mask/8; // Цел.ч. от дел. - кол-во полных байтов
     unsigned n = Mask%8; // Ост. ч. - биты в оставшемся байте
@@ -193,6 +200,10 @@ vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange() const{
     unsigned Delta1 = pow(2,m1); // last bit value
     vector<byte_t> tempIpVec = IP;
     vector<vector<byte_t>> subNetsVec;
+
+    if(getOnlyOnePair){
+        subnetsNum1 = 1;
+    }
     switch (l) {
     case 0: // mask = X.0.0.0
         for(unsigned i=0;i<subnetsNum1;i++){
@@ -243,6 +254,10 @@ vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange() const{
         break;
     }
     return subNetsVec;
+}
+
+byte_t IPClass::getMask() const{
+    return Mask;
 }
 
 // checks if IPVar is greater OR equal to the class IP
@@ -385,9 +400,7 @@ QString IPClass::getQStrAvailableSubnetsTAG() const{
     return QStrAvailableSubnetsTAG;
 }
 
-vector<IPClass> IPClass::produceAdressForHosts(){
-    vector<IPClass> vecOfIPs;
-    IPClass ipClassObj;
+void IPClass::produceAdressForHosts(){
     struct Pair{
         unsigned freeHostsNum; // for 8-1 (mask 255.255.255.x) 254, 126, 62, 30, 14, 6, 2
         unsigned bitValue; // bit val. to calc the final mask in the end.
@@ -402,11 +415,10 @@ vector<IPClass> IPClass::produceAdressForHosts(){
 
     switch (l) {
     case 4: // mask = 255.255.255.255, maskOpos = 0
-        ipClassObj.setIP(0,0,0,0);
-        ipClassObj.setMask(32);
-        ipClassObj.calcIPData();
-        vecOfIPs.push_back(ipClassObj);
-        return vecOfIPs;
+        setIP(0,0,0,0);
+        setMask(32);
+        calcIPData();
+        break;
     default:
         for(unsigned maskBit=maskOpos;maskBit>1;maskBit--){
             freeHosts = pow(2,maskBit)-2; // 254, 126, 62...
@@ -419,11 +431,27 @@ vector<IPClass> IPClass::produceAdressForHosts(){
                 break;
             }
         }
-    } // tired.. IDEA TODO: this area calls gen vect of ips, pairs for a bin tree
-    // it continues untill we hit the last ip with hosts value that calculated here.
-    // this goes into another func in mainwin that pastes children in pairs on top of
-    // eachother untill we hit the limit - hosts value.
-    // THEN TODO: RFC, aggregation, disaggregation,edit button, save&load2file, GG.
+    }
     p = vecPair.back();
-    ipClassObj.setMask(32-p.bitValue);
+    setMask(32-p.bitValue);
+}
+
+// the idea is to produce a single level pair, untill we encounter same masks (host range is same)
+vector<IPClass> IPClass::produceOneLevelBranch(){
+    vector<IPClass> vecOfIPs; // vec with two ip objects for one level
+    IPClass ipClassObj1, ipClassObj2; // two ip objects
+    vector<vector<byte_t>> tempPairVect = getVectOfIPNetsInRange(true); // get one pair
+    for(unsigned i=1;i<30;i++){ // iterate trough 30 mask bits
+        ipClassObj1.setIP(tempPairVect[0]);
+        ipClassObj1.setMask(Mask+i);
+        ipClassObj1.calcIPData();
+        vecOfIPs.push_back(ipClassObj1);
+        ipClassObj2.setIP(tempPairVect[1]);
+        ipClassObj2.setMask(Mask+i);
+        ipClassObj2.calcIPData();
+        vecOfIPs.push_back(ipClassObj2);
+        if(Mask == ipClassObj1.getMask()){
+            break;
+        }
+    }
 }

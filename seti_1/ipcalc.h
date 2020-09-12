@@ -31,6 +31,7 @@ public:
     void setIP(const byte_t b0=0, const byte_t b1=0, // установить IP по 4м пер.
                const byte_t b2=0, const byte_t b3=0);
     void setIP(const vector<QString> vecQStr);
+    void setIP(const vector<byte_t> vecQStr);
     void calcMaskVectorBits(byte_t b0); // calculate mask
     void calcIPData();
 
@@ -43,11 +44,12 @@ public:
     void setMaxIPAdress(vector<byte_t> BC);
 
     // conversion methods
-    vector<vector<byte_t>> getVectOfIPNetsInRange() const;
     vector<int> convVecByteToVecInt(const vector<byte_t> vecOfByte) const;
     QString convVecToQStr(const vector<byte_t> vecOfByte) const;
 
     // get methods
+    vector<vector<byte_t>> getVectOfIPNetsInRange(bool getOnlyOnePair = false) const;
+    byte_t getMask() const;
     unsigned getUserInputHosts() const;
     unsigned getAvailableSubnets() const;
     unsigned getAvailableSubnetsTAG() const;
@@ -66,7 +68,9 @@ public:
     QString getQStrAvailableSubnetsTAG() const;
 
     // calculation and logic methods
-    vector<IPClass> produceAdressForHosts();
+    void produceAdressForHosts();
+    vector<IPClass> produceOneLevelBranch();
+
 };
 
 #endif // IPCALC_H
