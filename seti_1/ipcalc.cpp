@@ -239,6 +239,7 @@ vector<vector<byte_t>> IPClass::getVectOfIPNetsInRange() const{
         }
         break;
     case 4: // mask = 255.255.255.255
+        subNetsVec.push_back(tempIpVec);
         break;
     }
     return subNetsVec;
@@ -265,6 +266,10 @@ bool IPClass::compareIPs(const IPClass &IPVar) const{
     else{
         return true;
     }
+}
+
+void IPClass::setMask(byte_t m){
+    Mask = m;
 }
 
 void IPClass::setSubNetID(vector<byte_t> MaskVector){
@@ -311,6 +316,22 @@ QString IPClass::convVecToQStr(const vector<byte_t> vecOfByte) const{
                         QString::number(vecOfInts[2])+"."+
                         QString::number(vecOfInts[3]));
     return QStrLine;
+}
+
+unsigned IPClass::getUserInputHosts() const{
+    return UserInputHosts;
+}
+
+unsigned IPClass::getAvailableSubnets() const{
+    return AvailableSubnets;
+}
+
+unsigned IPClass::getAvailableSubnetsTAG() const{
+    return AvailableSubnetsTAG;
+}
+
+unsigned IPClass::getAvailableHosts() const{
+    return AvailableHosts;
 }
 
 QString IPClass::getQStrIP() const{
@@ -362,4 +383,47 @@ QString IPClass::getQStrAvailableSubnets() const{
 QString IPClass::getQStrAvailableSubnetsTAG() const{
     QString QStrAvailableSubnetsTAG = QString::number(AvailableSubnetsTAG);
     return QStrAvailableSubnetsTAG;
+}
+
+vector<IPClass> IPClass::produceAdressForHosts(){
+    vector<IPClass> vecOfIPs;
+    IPClass ipClassObj;
+    struct Pair{
+        unsigned freeHostsNum; // for 8-1 (mask 255.255.255.x) 254, 126, 62, 30, 14, 6, 2
+        unsigned bitValue; // bit val. to calc the final mask in the end.
+    };
+
+    unsigned l = Mask/8; // Цел.ч. от дел. - кол-во полных байтов
+    unsigned maskOpos = 32 - Mask; // HOST BITS
+    vector<Pair> vecPair;
+    double freeHosts;
+    double userInpHosts = UserInputHosts;
+    Pair p;
+
+    switch (l) {
+    case 4: // mask = 255.255.255.255, maskOpos = 0
+        ipClassObj.setIP(0,0,0,0);
+        ipClassObj.setMask(32);
+        ipClassObj.calcIPData();
+        vecOfIPs.push_back(ipClassObj);
+        return vecOfIPs;
+    default:
+        for(unsigned maskBit=maskOpos;maskBit>1;maskBit--){
+            freeHosts = pow(2,maskBit)-2; // 254, 126, 62...
+            if(userInpHosts/freeHosts <= 1){ // as long as <=1 hosts can fit.
+                p.bitValue = maskBit;
+                p.freeHostsNum = freeHosts;
+                vecPair.push_back(p);
+            }
+            else{
+                break;
+            }
+        }
+    } // tired.. IDEA TODO: this area calls gen vect of ips, pairs for a bin tree
+    // it continues untill we hit the last ip with hosts value that calculated here.
+    // this goes into another func in mainwin that pastes children in pairs on top of
+    // eachother untill we hit the limit - hosts value.
+    // THEN TODO: RFC, aggregation, disaggregation,edit button, save&load2file, GG.
+    p = vecPair.back();
+    ipClassObj.setMask(32-p.bitValue);
 }

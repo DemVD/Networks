@@ -27,11 +27,13 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     IP.setIP(vecQStr);
     IP.calcIPData();
     insert(IP);
-    if(IP.UserInputHosts <= IP.AvailableHosts){ // subnetting is possible
-        qDebug()<<"SUB POSSIBLE";
+    if(IP.getUserInputHosts() <= IP.getAvailableHosts()){ // subnetting is possible
+        qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
+        IP.produceAdressForHosts();
+        ui->statusBar->showMessage("OK.",6000);
     }
     else{ // subnetting inpossible
-        ui->statusBar->showMessage("Ошибка. Кол-во хостов вне допустимого промежутка для данного CIDR IP.");
+        ui->statusBar->showMessage("Ошибка. Кол-во хостов вне допустимого промежутка для данного CIDR IP.",6000);
 
     }
 }
@@ -43,8 +45,8 @@ void MainWindow::insert(const IPClass &IP){
 
     // FIRST ROW DATA
     QTreeWidgetItem *childRow1 = new QTreeWidgetItem; // CHILD item - first row
-    childRow1->setText(0, "CIDR IP:");
-    childRow1->setText(1, IP.getQStrIPAndMask());
+    childRow1->setText(0, "IP:");
+    childRow1->setText(1, IP.getQStrIP());
     item->addChild(childRow1); // add  this first row data (CHILD ITEM) to TOP item
     // SECOND ROW DATA
     QTreeWidgetItem *childRow2 = new QTreeWidgetItem; // CHILD item - second row
