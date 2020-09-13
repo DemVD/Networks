@@ -23,10 +23,8 @@ string MainWindow::saveToFile(){
 void MainWindow::produceTree(IPClass initialIP){
     IPClass targetIP = initialIP; // copy of initial IP
     IPClass currIP = initialIP;
-    currIP.setMask(currIP.getMask()-1);
     targetIP.produceAdressForHosts(); // now it has the target mask (bottom level leaf)
     vector<IPClass> ipClassVect = currIP.produceOneLevelBranch();
-    currIP = initialIP;
 
     // now generate pair for level in tree
     // initialIP has the starting mask
@@ -38,13 +36,11 @@ void MainWindow::produceTree(IPClass initialIP){
     root->addChild(childRow9);
 
     QTreeWidgetItem *subChildRow1 = new QTreeWidgetItem;
-    unsigned cnt=0;
-    for(auto ipElem:ipClassVect){
-        subChildRow1->setText(cnt, ipElem.getQStrIPAndMask());
-        cnt++;
-    }
+    subChildRow1->setText(0, ipClassVect[0].getQStrIPAndMask());
+    subChildRow1->setText(1, ipClassVect[1].getQStrIPAndMask());
     childRow9->addChild(subChildRow1);// first is done
 
+    /*
     if(currIP.getMask() != targetIP.getMask()){ // branching is required!
         while(currIP.getMask() != targetIP.getMask()){
             ipClassVect = currIP.produceOneLevelBranch();
@@ -61,7 +57,7 @@ void MainWindow::produceTree(IPClass initialIP){
             currIP.setMask((currIP.getMask())+1);
         }
     }
-
+*/
 
     //ui->treeWidget.
 
