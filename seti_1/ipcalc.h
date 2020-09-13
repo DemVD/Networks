@@ -27,6 +27,7 @@ private:
     unsigned AvailableHosts; // количество свободных адресов
 public:
     IPClass(); // констр-р по умолч.
+
     // set ip data methods
     void setIP(const byte_t b0=0, const byte_t b1=0, // установить IP по 4м пер.
                const byte_t b2=0, const byte_t b3=0);
@@ -48,6 +49,7 @@ public:
     QString convVecToQStr(const vector<byte_t> vecOfByte) const;
 
     // get methods
+    vector<byte_t> getIP() const;
     vector<vector<byte_t>> getVectOfIPNetsInRange(bool getOnlyOnePair = false) const;
     byte_t getMask() const;
     unsigned getUserInputHosts() const;
@@ -66,6 +68,7 @@ public:
     QString getQStrAvailableHosts() const;
     QString getQStrAvailableSubnets() const;
     QString getQStrAvailableSubnetsTAG() const;
+    QString getQStrUserInputHosts() const;
 
     // calculation and logic methods
     void produceAdressForHosts();

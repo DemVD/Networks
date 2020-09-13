@@ -333,6 +333,10 @@ QString IPClass::convVecToQStr(const vector<byte_t> vecOfByte) const{
     return QStrLine;
 }
 
+vector<byte_t> IPClass::getIP() const{
+    return IP;
+}
+
 unsigned IPClass::getUserInputHosts() const{
     return UserInputHosts;
 }
@@ -400,6 +404,11 @@ QString IPClass::getQStrAvailableSubnetsTAG() const{
     return QStrAvailableSubnetsTAG;
 }
 
+QString IPClass::getQStrUserInputHosts() const{
+    QString QStrUserInputHosts = QString::number(UserInputHosts);
+    return QStrUserInputHosts;
+}
+
 void IPClass::produceAdressForHosts(){
     struct Pair{
         unsigned freeHostsNum; // for 8-1 (mask 255.255.255.x) 254, 126, 62, 30, 14, 6, 2
@@ -436,22 +445,78 @@ void IPClass::produceAdressForHosts(){
     setMask(32-p.bitValue);
 }
 
-// the idea is to produce a single level pair, untill we encounter same masks (host range is same)
 vector<IPClass> IPClass::produceOneLevelBranch(){
     vector<IPClass> vecOfIPs; // vec with two ip objects for one level
-    IPClass ipClassObj1, ipClassObj2; // two ip objects
-    vector<vector<byte_t>> tempPairVect = getVectOfIPNetsInRange(true); // get one pair
-    for(unsigned i=1;i<30;i++){ // iterate trough 30 mask bits
-        ipClassObj1.setIP(tempPairVect[0]);
-        ipClassObj1.setMask(Mask+i);
-        ipClassObj1.calcIPData();
-        vecOfIPs.push_back(ipClassObj1);
-        ipClassObj2.setIP(tempPairVect[1]);
-        ipClassObj2.setMask(Mask+i);
-        ipClassObj2.calcIPData();
-        vecOfIPs.push_back(ipClassObj2);
-        if(Mask == ipClassObj1.getMask()){
-            break;
+    IPClass ipClassTempObj; // two ip objects
+    unsigned bits = 32-(Mask+1);
+    unsigned octetVal = 0;
+
+    if(Mask < 8){
+        bits += 24;
+        unsigned hostsNum = pow(2,bits);
+        while(octetVal<255){
+            ipClassTempObj.setIP(octetVal, 255, 255, 255 );
+            ipClassTempObj.setMask(Mask+1);
+            ipClassTempObj.calcIPData();
+            vecOfIPs.push_back(ipClassTempObj);
+            octetVal+=hostsNum;
         }
     }
+    else if(Mask < 16){
+        bits += 16;
+        unsigned hostsNum = pow(2,bits);
+        while(octetVal<255){
+            ipClassTempObj.setIP(IP[0], octetVal, 255, 255 );
+            ipClassTempObj.setMask(Mask+1);
+            ipClassTempObj.calcIPData();
+            vecOfIPs.push_back(ipClassTempObj);
+            octetVal+=hostsNum;
+        }
+    }
+    else if(Mask < 24){
+        bits += 8;
+        unsigned hostsNum = pow(2,bits);
+        while(octetVal<255){
+            ipClassTempObj.setIP(IP[0], IP[1], octetVal, 255 );
+            ipClassTempObj.setMask(Mask+1);
+            ipClassTempObj.calcIPData();
+            vecOfIPs.push_back(ipClassTempObj);
+            octetVal+=hostsNum;
+        }
+    }
+    else if(Mask < 32){
+        unsigned hostsNum = pow(2,bits);
+        while(octetVal<255){
+            ipClassTempObj.setIP(IP[0], IP[1], IP[2], octetVal );
+            ipClassTempObj.setMask(Mask+1);
+            ipClassTempObj.calcIPData();
+            vecOfIPs.push_back(ipClassTempObj);
+            octetVal+=hostsNum;
+        }
+    }
+    else{
+        vecOfIPs.push_back(ipClassTempObj);
+    }
+
+    return vecOfIPs;
+
+    /*
+    for(unsigned i=0;i<=tempIPsVect.size();i+=2){
+        ipClassTempObj.setIP(tempIPsVect[i]);
+        ipClassTempObj.setMask(Mask);
+        ipClassTempObj.calcIPData();
+        vecOfIPs.push_back(ipClassTempObj);
+    }
+
+    // binary is not an option.. ARRGHHHHH
+    ipClassObj1.setIP(IP);
+    ipClassObj1.setMask(Mask);
+    ipClassObj1.calcIPData();
+    vecOfIPs.push_back(ipClassObj1);
+
+    vector<byte_t> ipVec = ipClassObj1.getIP();
+    ipClassObj2.setIP(ipVec[0], ipVec[1], ipVec[2], ipVec[3]+=pow(2,bits));
+    ipClassObj2.setMask(Mask);
+    ipClassObj2.calcIPData();
+    vecOfIPs.push_back(ipClassObj2)*/
 }

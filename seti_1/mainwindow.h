@@ -17,7 +17,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     string saveToFile();
-    void insert(const IPClass &IP);
+    void produceTree(IPClass initialIP);
+    void insert(QTreeWidgetItem *R, const IPClass &IP);
 
 private slots:
     void slotSubWinRet(vector<QString> vecQStr);
@@ -27,6 +28,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     subWindowEnterIP *subWindow; // second window
+    QTreeWidgetItem *root = new QTreeWidgetItem;
     bool empty;
 };
 

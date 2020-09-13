@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow){
     ui->setupUi(this); // обычные действия констр-ра
     subWindow = new subWindowEnterIP(); // иниц-я второго окна
+    //QTreeWidgetItem *root = new QTreeWidgetItem;
     empty = true;
     connect(subWindow, SIGNAL(signalSubWinRet(vector<QString>)),
             this, SLOT(slotSubWinRet(vector<QString>)));
@@ -19,6 +20,58 @@ string MainWindow::saveToFile(){
 
 }
 
+void MainWindow::produceTree(IPClass initialIP){
+    IPClass targetIP = initialIP; // copy of initial IP
+    IPClass currIP = initialIP;
+    currIP.setMask(currIP.getMask()-1);
+    targetIP.produceAdressForHosts(); // now it has the target mask (bottom level leaf)
+    vector<IPClass> ipClassVect = currIP.produceOneLevelBranch();
+    currIP = initialIP;
+
+    // now generate pair for level in tree
+    // initialIP has the starting mask
+    // tempIpObj has the target IP
+
+    QTreeWidgetItem *childRow9 = new QTreeWidgetItem;
+    childRow9->setText(0, "Tree for Hosts:");
+    childRow9->setText(1, initialIP.getQStrUserInputHosts());
+    root->addChild(childRow9);
+
+    QTreeWidgetItem *subChildRow1 = new QTreeWidgetItem;
+    unsigned cnt=0;
+    for(auto ipElem:ipClassVect){
+        subChildRow1->setText(cnt, ipElem.getQStrIPAndMask());
+        cnt++;
+    }
+    childRow9->addChild(subChildRow1);// first is done
+
+    if(currIP.getMask() != targetIP.getMask()){ // branching is required!
+        while(currIP.getMask() != targetIP.getMask()){
+            ipClassVect = currIP.produceOneLevelBranch();
+            ui->treeWidget->setColumnCount((ipClassVect.size())+1);
+            unsigned cnt=0;
+            QTreeWidgetItem *subChildRows = new QTreeWidgetItem;
+            for(auto ipElem:ipClassVect){
+                subChildRows->setText(cnt, ipElem.getQStrIPAndMask());
+                cnt++;
+                // compareIPs method - checks if IPvar is greater Or equal to the inside IP
+
+            }
+            childRow9->addChild(subChildRows);
+            currIP.setMask((currIP.getMask())+1);
+        }
+    }
+
+
+    //ui->treeWidget.
+
+    /*for(unsigned i=initialIP.getMask();i<30;i++){ // iterate trough all 30 mask bits if needed
+        if(i == initialIP.getMask()){ // first iteration!
+            continue;
+        }
+    }*/
+}
+
 void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     // POSSIBLE CHECK FOR RFC in IPCALC CLASS
     // Create IP var, calc its data, insert into widget
@@ -26,11 +79,11 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     IPClass IP;
     IP.setIP(vecQStr);
     IP.calcIPData();
-    insert(IP);
+    ui->treeWidget->addTopLevelItem(root);
+    insert(root, IP);
     if(IP.getUserInputHosts() <= IP.getAvailableHosts()){ // subnetting is possible
         qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
-        IP.produceAdressForHosts();
-        qDebug()<<IP.getQStrIPAndMask();
+        produceTree(IP);
         ui->statusBar->showMessage("OK.",6000);
     }
     else{ // subnetting inpossible
@@ -39,46 +92,46 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     }
 }
 
-void MainWindow::insert(const IPClass &IP){
-    QTreeWidgetItem *item = new QTreeWidgetItem; // TOP item
-    item->setText(0, IP.getQStrIPAndMask()); // set col 0 text
-    ui->treeWidget->addTopLevelItem(item); // ADD TOP LEVEL item
+void MainWindow::insert(QTreeWidgetItem *R, const IPClass &IP){
+    // TOP item
+    R->setText(0, IP.getQStrIPAndMask()); // set col 0 text
+    //ui->treeWidget->addTopLevelItem(R); // ADD TOP LEVEL item
 
     // FIRST ROW DATA
     QTreeWidgetItem *childRow1 = new QTreeWidgetItem; // CHILD item - first row
     childRow1->setText(0, "IP:");
     childRow1->setText(1, IP.getQStrIP());
-    item->addChild(childRow1); // add  this first row data (CHILD ITEM) to TOP item
+    R->addChild(childRow1); // add  this first row data (CHILD ITEM) to TOP item
     // SECOND ROW DATA
     QTreeWidgetItem *childRow2 = new QTreeWidgetItem; // CHILD item - second row
     childRow2->setText(0, "Subnet ID:");
     childRow2->setText(1, IP.getQStrSubNetID());
-    item->addChild(childRow2);
+    R->addChild(childRow2);
     // ROW 3
     QTreeWidgetItem *childRow3 = new QTreeWidgetItem;
     childRow3->setText(0, "Broadcast:");
     childRow3->setText(1, IP.getQStrBroadCast());
-    item->addChild(childRow3);
+    R->addChild(childRow3);
     // ROW 4
     QTreeWidgetItem *childRow4 = new QTreeWidgetItem;
     childRow4->setText(0, "Min IP:");
     childRow4->setText(1, IP.getQStrMinIPAdress());
-    item->addChild(childRow4);
+    R->addChild(childRow4);
     // ROW 5
     QTreeWidgetItem *childRow5 = new QTreeWidgetItem;
     childRow5->setText(0, "Max IP:");
     childRow5->setText(1, IP.getQStrMaxIPAdress());
-    item->addChild(childRow5);
+    R->addChild(childRow5);
     // ROW 6
     QTreeWidgetItem *childRow6 = new QTreeWidgetItem;
     childRow6->setText(0, "Hosts:");
     childRow6->setText(1, IP.getQStrAvailableHosts());
-    item->addChild(childRow6);
+    R->addChild(childRow6);
     // ROW 7
     QTreeWidgetItem *childRow7 = new QTreeWidgetItem;
     childRow7->setText(0, "Subnets:");
     childRow7->setText(1, IP.getQStrAvailableSubnets());
-    item->addChild(childRow7);
+    R->addChild(childRow7);
     // ROW 8
     QTreeWidgetItem *childRow8 = new QTreeWidgetItem;
     childRow8->setText(0, "Subnet Range List:");
@@ -90,7 +143,7 @@ void MainWindow::insert(const IPClass &IP){
         ch->setText(1, IP.convVecToQStr(subNets[i+1]));
         childRow8->addChild(ch);
     }
-    item->addChild(childRow8);
+    R->addChild(childRow8);
 
     /*
     QTreeWidgetItem *item = new QTreeWidgetItem;
@@ -139,6 +192,7 @@ void MainWindow::insert(const IPClass &IP){
 void MainWindow::on_actionNew_triggered(){
     if(empty){ // empty widget
         ui->treeWidget->clear();
+        ui->treeWidget->setColumnCount(3);
         subWindow->exec();
     }
     else{  // changes were made (widget not empty)
@@ -154,15 +208,20 @@ void MainWindow::on_actionNew_triggered(){
         switch(userChoise){
         case QMessageBox::Save: // save was clicked
             ui->treeWidget->clear();
+            ui->treeWidget->setColumnCount(3);
             return;
         case QMessageBox::Cancel: // cancel clicked
             return;
         case 0: // dont save clicked
             ui->treeWidget->clear();
+            root = new QTreeWidgetItem;
+            ui->treeWidget->setColumnCount(3);
             subWindow->exec();
             break;
         default:
             ui->treeWidget->clear();
+            root = new QTreeWidgetItem;
+            ui->treeWidget->setColumnCount(3);
             subWindow->exec();
             return;
         }
