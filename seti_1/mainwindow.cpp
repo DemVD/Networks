@@ -266,7 +266,23 @@ void MainWindow::on_actionNew_triggered(){
 }
 
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column){
+    selectedItem = item;
     qDebug()<<"CLICK GOT YEETED!";
-    qDebug()<<column;
-    qDebug()<<item->text(column);
+    //qDebug()<<column;
+    //qDebug()<<item->text(column);
+}
+
+void MainWindow::on_actionEdit_triggered(){
+    ui->treeWidget->clear();
+    root = new QTreeWidgetItem;
+    ui->treeWidget->setColumnCount(2);
+    subWindow->exec();
+}
+
+void MainWindow::on_actionAgregate_triggered(){
+
+}
+
+void MainWindow::on_actiondisaggregate_triggered(){
+
 }

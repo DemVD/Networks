@@ -502,7 +502,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
         while(currHosts < 255){
             cnt++;
             if(tempIP.SubNetID[1] >= currHosts && tempIP.SubNetID[1] < (currHosts+hostsAmm)){
-                tempIP.setIP(SubNetID[0],currHosts,SubNetID[2], SubNetID[3]);
+                tempIP.setIP(IP[0],currHosts,SubNetID[2], SubNetID[3]);
                 tempIP.setMask(Mask+1);
                 tempIP.calcIPData();
                 break;
@@ -534,7 +534,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
         while(currHosts < 255){
             cnt++;
             if(tempIP.SubNetID[2] >= currHosts && tempIP.SubNetID[2] < (currHosts+hostsAmm)){
-                tempIP.setIP(SubNetID[0],SubNetID[1], currHosts, SubNetID[3]);
+                tempIP.setIP(IP[0],IP[1], currHosts, SubNetID[3]);
                 tempIP.setMask(Mask+1);
                 tempIP.calcIPData();
                 break;
@@ -566,7 +566,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
         while(currHosts < 255){
             cnt++;
             if(tempIP.SubNetID[3] >= currHosts && tempIP.SubNetID[3] < (currHosts+hostsAmm)){
-                tempIP.setIP(SubNetID[0],SubNetID[1],SubNetID[2], currHosts);
+                tempIP.setIP(IP[0],IP[1],IP[2], currHosts);
                 tempIP.setMask(Mask+1);
                 tempIP.calcIPData();
                 break;

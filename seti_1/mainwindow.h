@@ -21,15 +21,22 @@ public:
     void insert(QTreeWidgetItem *R, const IPClass &IP);
 
 private slots:
+    // defined slots
     void slotSubWinRet(vector<QString> vecQStr);
+
+    // generated slots
     void on_actionNew_triggered();
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+    void on_actionEdit_triggered();
+    void on_actionAgregate_triggered();
+    void on_actiondisaggregate_triggered();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui; // main ui
     subWindowEnterIP *subWindow; // second window
-    QTreeWidgetItem *root = new QTreeWidgetItem;
-    bool empty;
+    QTreeWidgetItem *root = new QTreeWidgetItem; // root
+    QTreeWidgetItem *selectedItem = new QTreeWidgetItem; // selected item
+    bool empty; // ui empty flag
 };
 
 #endif // MAINWINDOW_H

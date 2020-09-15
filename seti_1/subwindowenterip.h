@@ -10,8 +10,7 @@ namespace Ui {
 class subWindowEnterIP;
 }
 
-class subWindowEnterIP : public QDialog
-{
+class subWindowEnterIP : public QDialog{
     Q_OBJECT
 
 public:
