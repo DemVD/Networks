@@ -491,26 +491,18 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
         break;
     }
     case 1:{ // mask = 255.X.0.0
-        qDebug()<<"OCTET 2 CASE WORKS!";
         unsigned hostBits = 32 - (Mask+1) - 16;
-        qDebug()<<"HOSTBITS= "<<hostBits;
         unsigned hostsAmm = pow(2,hostBits);
-        qDebug()<<"hostsAmm= "<<hostsAmm;
         while(currHosts < 255){
             cnt++;
-            qDebug()<<"currHosts= "<<currHosts;
             if(tempIP.SubNetID[1] >= currHosts && tempIP.SubNetID[1] < (currHosts+hostsAmm)){
-                qDebug()<<"IF WORKS!";
-                qDebug()<<"SUBNETID 2ND OCTET= "<<tempIP.SubNetID[1];
                 tempIP.setIP(SubNetID[0],currHosts,SubNetID[2], SubNetID[3]);
                 tempIP.setMask(Mask+1);
                 tempIP.calcIPData();
-                qDebug()<<tempIP.getQStrIPAndMask();
                 break;
             }
             currHosts+=hostsAmm;
         }
-        qDebug()<<"CNT= "<<cnt<<" SUBNETS= "<<subnetsNum1;
         if(cnt == subnetsNum1){
             IPClass tempIP2;
             tempIP2.setIP(tempIP.getIP()[0], (tempIP.getIP()[1] - hostsAmm), tempIP.getIP()[2], tempIP.getIP()[3]);
@@ -561,7 +553,6 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
     case 3:{ // mask = 255.255.255.X
         unsigned hostBits = 32 - (Mask+1);
         unsigned hostsAmm = pow(2,hostBits);
-        qDebug()<<"HOSTSAMM= "<<hostsAmm;
         while(currHosts < 255){
             cnt++;
             if(tempIP.SubNetID[3] >= currHosts && tempIP.SubNetID[3] < (currHosts+hostsAmm)){
@@ -593,10 +584,6 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
         break;
     }
 
-    }
-
-    if(Mask<32){
-        Mask++;
     }
 
     return vecPair;

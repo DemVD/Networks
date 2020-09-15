@@ -17,7 +17,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     string saveToFile();
-    void produceTree(IPClass initialIP);
+    void produceTree(IPClass &initialIP);
     void insert(QTreeWidgetItem *R, const IPClass &IP);
 
 private slots:

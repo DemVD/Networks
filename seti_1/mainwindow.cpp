@@ -20,11 +20,10 @@ string MainWindow::saveToFile(){
 
 }
 
-void MainWindow::produceTree(IPClass initialIP){
+void MainWindow::produceTree(IPClass &initialIP){
     IPClass targetIP = initialIP; // copy of initial IP
-    IPClass currIP = initialIP;
     targetIP.produceAdressForHosts(); // now it has the target mask (bottom level leaf)
-    vector<IPClass> ipClassVect = currIP.produceOneLevelBranch();
+    vector<IPClass> ipClassVect = initialIP.produceOneLevelBranch();
 
     // now generate pair for level in tree
     // initialIP has the starting mask
@@ -35,10 +34,14 @@ void MainWindow::produceTree(IPClass initialIP){
     childRow9->setText(1, initialIP.getQStrUserInputHosts());
     root->addChild(childRow9);
 
-    QTreeWidgetItem *subChildRow1 = new QTreeWidgetItem;
-    subChildRow1->setText(0, ipClassVect[0].getQStrIPAndMask());
-    subChildRow1->setText(1, ipClassVect[1].getQStrIPAndMask());
-    childRow9->addChild(subChildRow1);// first is done
+    while(initialIP.getMask() != targetIP.getMask()){ // while not target mask
+        QTreeWidgetItem *subChildRow1 = new QTreeWidgetItem;
+        subChildRow1->setText(0, ipClassVect[0].getQStrIPAndMask());
+        subChildRow1->setText(1, ipClassVect[1].getQStrIPAndMask());
+        childRow9->addChild(subChildRow1);
+        initialIP.setMask( initialIP.getMask()+1 );
+        ipClassVect = initialIP.produceOneLevelBranch();
+    }
 
     /*
     if(currIP.getMask() != targetIP.getMask()){ // branching is required!
@@ -78,7 +81,7 @@ void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     ui->treeWidget->addTopLevelItem(root);
     insert(root, IP);
     if(IP.getUserInputHosts() <= IP.getAvailableHosts()){ // subnetting is possible
-        qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
+        //qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
         produceTree(IP);
         ui->statusBar->showMessage("OK.",6000);
     }
