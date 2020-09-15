@@ -25,6 +25,7 @@ private:
     unsigned AvailableSubnets; // свободные подсети с соответствующей маской
     unsigned AvailableSubnetsTAG; // вторичное значение
     unsigned AvailableHosts; // количество свободных адресов
+    bool isRightSon;
 public:
     IPClass(); // констр-р по умолч.
 
@@ -56,6 +57,7 @@ public:
     unsigned getAvailableSubnets() const;
     unsigned getAvailableSubnetsTAG() const;
     unsigned getAvailableHosts() const;
+    bool getIsRightSon() const;
 
     // get QStr methods
     QString getQStrIP() const; // QString

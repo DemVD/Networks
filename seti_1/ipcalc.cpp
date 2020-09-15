@@ -352,6 +352,10 @@ unsigned IPClass::getAvailableHosts() const{
     return AvailableHosts;
 }
 
+bool IPClass::getIsRightSon() const{
+    return isRightSon;
+}
+
 QString IPClass::getQStrIP() const{
     QString QStrIP = convVecToQStr(IP);
     return QStrIP;
@@ -480,6 +484,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP2.calcIPData();
             vecPair.push_back(tempIP2);
             vecPair.push_back(tempIP);
+            isRightSon = true;
         }
         else{
             vecPair.push_back(tempIP);
@@ -487,6 +492,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP.setMask(Mask+1);
             tempIP.calcIPData();
             vecPair.push_back(tempIP);
+            isRightSon = false;
         }
         break;
     }
@@ -510,6 +516,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP2.calcIPData();
             vecPair.push_back(tempIP2);
             vecPair.push_back(tempIP);
+            isRightSon = true;
         }
         else{
             vecPair.push_back(tempIP);
@@ -517,6 +524,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP.setMask(Mask+1);
             tempIP.calcIPData();
             vecPair.push_back(tempIP);
+            isRightSon = false;
         }
         break;
     }
@@ -540,6 +548,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP2.calcIPData();
             vecPair.push_back(tempIP2);
             vecPair.push_back(tempIP);
+            isRightSon = true;
         }
         else{
             vecPair.push_back(tempIP);
@@ -547,6 +556,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP.setMask(Mask+1);
             tempIP.calcIPData();
             vecPair.push_back(tempIP);
+            isRightSon = false;
         }
         break;
     }
@@ -570,6 +580,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP2.calcIPData();
             vecPair.push_back(tempIP2);
             vecPair.push_back(tempIP);
+            isRightSon = true;
         }
         else{
             vecPair.push_back(tempIP);
@@ -577,6 +588,7 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
             tempIP.setMask(Mask+1);
             tempIP.calcIPData();
             vecPair.push_back(tempIP);
+            isRightSon = false;
         }
         break;
     }
