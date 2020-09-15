@@ -33,13 +33,15 @@ public:
     void setIP(const byte_t b0=0, const byte_t b1=0, // установить IP по 4м пер.
                const byte_t b2=0, const byte_t b3=0);
     void setIP(const vector<QString> vecQStr);
-    void setIP(const vector<byte_t> vecQStr);
+    void setIP(const vector<byte_t> vecByte);
+    void setIP(const QString QStr);
     void calcMaskVectorBits(byte_t b0); // calculate mask
     void calcIPData();
 
     // more set ip data methods
     bool compareIPs(const IPClass &IPVar) const; // checks if IPvar is greater Or equal to the inside IP
     void setMask(byte_t m);
+    void setMask(QString s);
     void setSubNetID(vector<byte_t> MaskVector);
     void setAvailableHosts(byte_t m);
     void setMinIPAdress(vector<byte_t> SNID);

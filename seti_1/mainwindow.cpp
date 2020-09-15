@@ -55,6 +55,7 @@ void MainWindow::produceTree(IPClass &initialIP){
         ipClassVect = initialIP.produceOneLevelBranch();
     }
 
+    treeForHostsROOT = childRow9;
     /*
     if(currIP.getMask() != targetIP.getMask()){ // branching is required!
         while(currIP.getMask() != targetIP.getMask()){
@@ -273,16 +274,53 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column){
 }
 
 void MainWindow::on_actionEdit_triggered(){
-    ui->treeWidget->clear();
-    root = new QTreeWidgetItem;
-    ui->treeWidget->setColumnCount(2);
-    subWindow->exec();
+    // Diff between top and bottom items is that a top-level item has no parent()
+    // It is used to know if an item is top level or not.
+    if(!selectedItem->parent()){
+        if(selectedItem == root){
+            qDebug()<<"ROOT IS SELECTED!";
+        }
+    }
+    else{
+        ui->statusBar->showMessage("Можно редактировать только введённые IP",3000);
+    }
+    //ui->treeWidget->editItem(selectedItem);
 }
 
-void MainWindow::on_actionAgregate_triggered(){
-
+void MainWindow::on_actionAggregate_triggered(){
+    if(selectedItem->parent() == treeForHostsROOT){
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Aggregate");
+        msgBox.setText("Aggregate subnets under selected subnet?");
+        msgBox.setStandardButtons(QMessageBox::Yes);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+        msgBox.addButton(QMessageBox::No);
+        msgBox.setIcon(QMessageBox::Question);
+        int userChoise = msgBox.exec();
+        switch(userChoise){
+        case QMessageBox::Yes:{ // yes was clicked
+            QTreeWidgetItem *newTopLvlItem = new QTreeWidgetItem;
+            IPClass newIP;
+            newIP.setIP(selectedItem->text(0));
+            newIP.setMask(selectedItem->text(0));
+            newIP.calcIPData();
+            ui->treeWidget->addTopLevelItem(newTopLvlItem);
+            insert(newTopLvlItem, newIP);
+            vecOfTopLevelItems->push_back(*newTopLvlItem);
+            return;
+        }
+        case QMessageBox::No: // cancel clicked
+            return;
+        default:
+            return;
+        }
+    }
+    else{
+        ui->statusBar->showMessage("Агрегировать можно только IP в Tree for hosts",3000);
+    }
 }
 
 void MainWindow::on_actiondisaggregate_triggered(){
 
 }
+

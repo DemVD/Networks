@@ -59,7 +59,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionEdit"/>
-    <addaction name="actionAgregate"/>
+    <addaction name="actionAggregate"/>
     <addaction name="actiondisaggregate"/>
    </widget>
    <addaction name="menuFile"/>
@@ -92,7 +92,7 @@
    <addaction name="actionSave_as"/>
    <addaction name="separator"/>
    <addaction name="actionEdit"/>
-   <addaction name="actionAgregate"/>
+   <addaction name="actionAggregate"/>
    <addaction name="actiondisaggregate"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
@@ -115,7 +115,7 @@
     <string>New</string>
    </property>
    <property name="toolTip">
-    <string>Clear all, create new tree</string>
+    <string>Clear all, create new..</string>
    </property>
   </action>
   <action name="actionOpen">
@@ -127,7 +127,7 @@
     <string>Open</string>
    </property>
    <property name="toolTip">
-    <string>Open existing file</string>
+    <string>Open file..</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -139,7 +139,7 @@
     <string>Save as</string>
    </property>
    <property name="toolTip">
-    <string>Save tree into a file</string>
+    <string>Save as..</string>
    </property>
   </action>
   <action name="actionEdit">
@@ -151,10 +151,10 @@
     <string>Edit</string>
    </property>
    <property name="toolTip">
-    <string>Make changes in selected node</string>
+    <string>Edit selected IP..</string>
    </property>
   </action>
-  <action name="actionAgregate">
+  <action name="actionAggregate">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/new/prefix1/agrr 3.png</normaloff>:/new/prefix1/agrr 3.png</iconset>
@@ -163,7 +163,7 @@
     <string>Aggregate</string>
    </property>
    <property name="toolTip">
-    <string>Combine selected nodes into one subnet</string>
+    <string>Agregate into selected subnet</string>
    </property>
   </action>
   <action name="actiondisaggregate">
@@ -175,7 +175,10 @@
     <string>disaggregate</string>
    </property>
    <property name="toolTip">
-    <string>Break selected node (subnet)</string>
+    <string>DIsaggregate subnets back</string>
+   </property>
+   <property name="statusTip">
+    <string/>
    </property>
   </action>
  </widget>

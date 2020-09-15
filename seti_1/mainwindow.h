@@ -28,7 +28,7 @@ private slots:
     void on_actionNew_triggered();
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void on_actionEdit_triggered();
-    void on_actionAgregate_triggered();
+    void on_actionAggregate_triggered();
     void on_actiondisaggregate_triggered();
 
 private:
@@ -36,6 +36,8 @@ private:
     subWindowEnterIP *subWindow; // second window
     QTreeWidgetItem *root = new QTreeWidgetItem; // root
     QTreeWidgetItem *selectedItem = new QTreeWidgetItem; // selected item
+    vector<QTreeWidgetItem> *vecOfTopLevelItems = new vector<QTreeWidgetItem>;
+    QTreeWidgetItem *treeForHostsROOT = new QTreeWidgetItem; // has the root of the bintree
     bool empty; // ui empty flag
 };
 

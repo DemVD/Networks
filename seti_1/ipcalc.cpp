@@ -49,11 +49,18 @@ void IPClass::setIP(const vector<QString> vecQStr){
     }
 }
 
-void IPClass::setIP(const vector<byte_t> vecQStr){
-    IP[0] = vecQStr[0];
-    IP[1] = vecQStr[1];
-    IP[2] = vecQStr[2];
-    IP[3] = vecQStr[3];
+void IPClass::setIP(const vector<byte_t> vecByte){
+    IP[0] = vecByte[0];
+    IP[1] = vecByte[1];
+    IP[2] = vecByte[2];
+    IP[3] = vecByte[3];
+}
+
+void IPClass::setIP(const QString QStr){
+    QStringList QStrL = QStr.split(".");
+    QStringList lastOctet = QStrL[3].split("/");
+    vector<QString> vecQStr = {QStrL[0], QStrL[1], QStrL[2], lastOctet[0]};
+    setIP(vecQStr);
 }
 
 void IPClass::calcMaskVectorBits(byte_t maska){
@@ -284,6 +291,16 @@ bool IPClass::compareIPs(const IPClass &IPVar) const{
 
 void IPClass::setMask(byte_t m){
     Mask = m;
+}
+
+void IPClass::setMask(QString s){
+    if(s.size() >= 0 && s.size() <= 2){
+        Mask = s.toUInt();
+    }
+    else{
+        QStringList QStrL = s.split("/");
+        setMask(QStrL[1]);
+    }
 }
 
 void IPClass::setSubNetID(vector<byte_t> MaskVector){
