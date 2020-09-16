@@ -334,6 +334,10 @@ void IPClass::setMaxIPAdress(vector<byte_t> BC){
     MaxIPAdress = tempVec;
 }
 
+void IPClass::setUserInputHosts(unsigned inp){
+    UserInputHosts = inp;
+}
+
 vector<int> IPClass::convVecByteToVecInt(const vector<byte_t> vecOfByte) const{
     vector<int> vecOfInts = {int(vecOfByte[0]), int(vecOfByte[1]),
                              int(vecOfByte[2]), int(vecOfByte[3])};

@@ -21,10 +21,10 @@ private:
     vector<byte_t> BroadCast; // adress for broadcast
     vector<byte_t> MinIPAdress; // Минимальное значение адреса в подсети
     vector<byte_t> MaxIPAdress; // Максимальное значение адреса в подсети
-    unsigned UserInputHosts;
     unsigned AvailableSubnets; // свободные подсети с соответствующей маской
     unsigned AvailableSubnetsTAG; // вторичное значение
     unsigned AvailableHosts; // количество свободных адресов
+    unsigned UserInputHosts;
     bool isRightSon;
 public:
     IPClass(); // констр-р по умолч.
@@ -46,6 +46,7 @@ public:
     void setAvailableHosts(byte_t m);
     void setMinIPAdress(vector<byte_t> SNID);
     void setMaxIPAdress(vector<byte_t> BC);
+    void setUserInputHosts(unsigned inp);
 
     // conversion methods
     vector<int> convVecByteToVecInt(const vector<byte_t> vecOfByte) const;
@@ -77,7 +78,6 @@ public:
     // calculation and logic methods
     void produceAdressForHosts();
     vector<IPClass> produceOneLevelBranch();
-
 };
 
 #endif // IPCALC_H

@@ -333,7 +333,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Колво Хостов для каждой подсети</string>
+           <string>Хостов для каждой подсети</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

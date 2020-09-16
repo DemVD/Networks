@@ -60,7 +60,6 @@
     </property>
     <addaction name="actionEdit"/>
     <addaction name="actionAggregate"/>
-    <addaction name="actiondisaggregate"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -93,7 +92,6 @@
    <addaction name="separator"/>
    <addaction name="actionEdit"/>
    <addaction name="actionAggregate"/>
-   <addaction name="actiondisaggregate"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="cursor">
@@ -163,22 +161,7 @@
     <string>Aggregate</string>
    </property>
    <property name="toolTip">
-    <string>Agregate into selected subnet</string>
-   </property>
-  </action>
-  <action name="actiondisaggregate">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/diss 3.png</normaloff>:/new/prefix1/diss 3.png</iconset>
-   </property>
-   <property name="text">
-    <string>disaggregate</string>
-   </property>
-   <property name="toolTip">
-    <string>DIsaggregate subnets back</string>
-   </property>
-   <property name="statusTip">
-    <string/>
+    <string>Agregate subnets into selected subnet..</string>
    </property>
   </action>
  </widget>

@@ -20,10 +20,17 @@ string MainWindow::saveToFile(){
 
 }
 
-void MainWindow::produceTree(IPClass &initialIP){
-    IPClass targetIP = initialIP; // copy of initial IP
-    targetIP.produceAdressForHosts(); // now it has the target mask (bottom level leaf)
-    vector<IPClass> ipClassVect = initialIP.produceOneLevelBranch();
+void MainWindow::produceTree(IPClass &initIP, QTreeWidgetItem *R, byte_t targetMask){
+    IPClass targetIP = initIP; // copy of initial IP
+    if(targetMask == 0){
+        targetIP.produceAdressForHosts(); // now it has the target mask (bottom level leaf)
+    }
+    else{ // target mask specified
+        targetIP.produceAdressForHosts();
+        targetIP.setMask(targetMask);
+        initIP.setMask(root->text(0));
+    }
+    vector<IPClass> ipClassVect = initIP.produceOneLevelBranch();
 
     // now generate pair for level in tree
     // initialIP has the starting mask
@@ -31,73 +38,55 @@ void MainWindow::produceTree(IPClass &initialIP){
 
     QTreeWidgetItem *childRow9 = new QTreeWidgetItem;
     childRow9->setText(0, "Tree for Hosts:");
-    childRow9->setText(1, initialIP.getQStrUserInputHosts());
+    childRow9->setText(1, initIP.getQStrUserInputHosts());
     childRow9->setBackground(0, QColor(224,224,224,255));
     childRow9->setBackground(1, QColor(224,224,224,255));
-    root->addChild(childRow9);
+    R->addChild(childRow9);
 
-    while(initialIP.getMask() != targetIP.getMask()){ // while not target mask
+    while( (initIP.getMask() != targetIP.getMask())){ // while not target mask
+        if(initIP.getMask()>31) break;
         QTreeWidgetItem *subChildRow1 = new QTreeWidgetItem;
         insert(subChildRow1, ipClassVect[0]);
         insert(subChildRow1, ipClassVect[1]);
         subChildRow1->setText(0, ipClassVect[0].getQStrIPAndMask());
         subChildRow1->setText(1, ipClassVect[1].getQStrIPAndMask());
-        if(initialIP.getIsRightSon()){ // our IP is in right son
+        if(initIP.getIsRightSon()){ // our IP is in right son
             subChildRow1->setBackground(0, QColor(192,192,192,255));
             subChildRow1->setBackground(1, QColor(128,255,128,255));
+            vecOfTreeIpItems.push_back(*subChildRow1);
         }
         else{ // our IP is in left son
             subChildRow1->setBackground(0, QColor(128,255,128,255));
             subChildRow1->setBackground(1, QColor(192,192,192,255));
+            vecOfTreeIpItems.push_back(*subChildRow1);
         }
         childRow9->addChild(subChildRow1);
-        initialIP.setMask( initialIP.getMask()+1 );
-        ipClassVect = initialIP.produceOneLevelBranch();
+        initIP.setMask( initIP.getMask()+1 );
+        ipClassVect = initIP.produceOneLevelBranch();
     }
 
     treeForHostsROOT = childRow9;
-    /*
-    if(currIP.getMask() != targetIP.getMask()){ // branching is required!
-        while(currIP.getMask() != targetIP.getMask()){
-            ipClassVect = currIP.produceOneLevelBranch();
-            ui->treeWidget->setColumnCount((ipClassVect.size())+1);
-            unsigned cnt=0;
-            QTreeWidgetItem *subChildRows = new QTreeWidgetItem;
-            for(auto ipElem:ipClassVect){
-                subChildRows->setText(cnt, ipElem.getQStrIPAndMask());
-                cnt++;
-                // compareIPs method - checks if IPvar is greater Or equal to the inside IP
-
-            }
-            childRow9->addChild(subChildRows);
-            currIP.setMask((currIP.getMask())+1);
-        }
-    }
-*/
-
-    //ui->treeWidget.
-
-    /*for(unsigned i=initialIP.getMask();i<30;i++){ // iterate trough all 30 mask bits if needed
-        if(i == initialIP.getMask()){ // first iteration!
-            continue;
-        }
-    }*/
 }
 
 void MainWindow::slotSubWinRet(vector<QString> vecQStr){
     // POSSIBLE CHECK FOR RFC in IPCALC CLASS
     // Create IP var, calc its data, insert into widget
+    if(!empty){ // second func call means we're editing
+        delete root;
+        root = new QTreeWidgetItem;
+        ui->treeWidget->clear();
+    }
     empty = false;
-    IPClass IP;
-    IP.setIP(vecQStr);
-    IP.calcIPData();
+    InitialIP.setIP(vecQStr);
+    InitialIP.calcIPData();
     root->setBackground(0, QColor(224,224,224,255));
     root->setBackground(1, QColor(224,224,224,255));
+    root->setText(1,"Initial IP");
     ui->treeWidget->addTopLevelItem(root);
-    insert(root, IP);
-    if(IP.getUserInputHosts() <= IP.getAvailableHosts()){ // subnetting is possible
+    insert(root, InitialIP);
+    if(InitialIP.getUserInputHosts() <= InitialIP.getAvailableHosts()){ // subnetting is possible
         //qDebug()<<"USER INP: "<<IP.getUserInputHosts()<<"IP AVAIL HOSTS: "<<IP.getAvailableHosts();
-        produceTree(IP);
+        produceTree(InitialIP, root);
         ui->statusBar->showMessage("OK.",6000);
     }
     else{ // subnetting inpossible
@@ -110,6 +99,7 @@ void MainWindow::insert(QTreeWidgetItem *R, const IPClass &IP){
     // TOP item
     R->setText(0, IP.getQStrIPAndMask()); // set col 0 text
     R->setBackground(0, QColor(224,224,224,255));
+    R->setBackground(1, QColor(220,220,220,255));
     //ui->treeWidget->addTopLevelItem(R); // ADD TOP LEVEL item
 
     // FIRST ROW DATA
@@ -164,6 +154,7 @@ void MainWindow::insert(QTreeWidgetItem *R, const IPClass &IP){
     // ROW 8
     QTreeWidgetItem *childRow8 = new QTreeWidgetItem;
     childRow8->setText(0, "Subnet Range List:");
+    childRow8->setText(1, "ID - BC");
     childRow8->setBackground(0, QColor(224,224,224,255));
     childRow8->setBackground(1, QColor(224,224,224,255));
     //item->addChild(childRow8);
@@ -177,54 +168,11 @@ void MainWindow::insert(QTreeWidgetItem *R, const IPClass &IP){
         childRow8->addChild(ch);
     }
     R->addChild(childRow8);
-    // ROW 9 (separator)
+    /*// ROW 9 (separator)
     QTreeWidgetItem *childRow9 = new QTreeWidgetItem;
     childRow9->setBackground(0, QColor(245,245,245,255));
     childRow9->setBackground(1, QColor(245,245,245,255));
-    R->addChild(childRow9);
-
-    /*
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item->setText(0, "Stolbes 0");
-    item->setText(1, "Stolbes 1");
-    item->setText(2, "Stolbes 2");
-    item->setText(3, "Stolbes 3");
-    item->setText(4, "Stolbes 4");
-
-    item->setBackground(0, Qt::red);
-    item->setBackground(1, Qt::blue);
-    item->setBackground(2, Qt::yellow);
-    item->setBackground(3, Qt::green);
-    item->setBackground(4, Qt::gray);
-
-    item->setForeground(0, QColor(255,255,255,255));
-    item->setForeground(1, QColor(255,255,255,255));
-    item->setForeground(2, QColor(200,0,100,255));
-    item->setForeground(3, QColor(0,0,0,255));
-    item->setForeground(4, QColor(255,255,255,255));
-
-    ui->treeWidget->setColumnCount(5);
-    ui->treeWidget->addTopLevelItem(item);
-
-    // must be filled like item1
-    QTreeWidgetItem *item2 = new QTreeWidgetItem;
-    ui->treeWidget->addTopLevelItem(item2);
-
-    QTreeWidgetItem *child0 = new QTreeWidgetItem;
-    QTreeWidgetItem *child1 = new QTreeWidgetItem;
-    QTreeWidgetItem *child2 = new QTreeWidgetItem;
-    QTreeWidgetItem *child3 = new QTreeWidgetItem;
-
-    child0->setText(0, "Text child 0 stolbes 0");
-    child1->setText(1, "Text child 1 stolbes 1");
-    child2->setText(2, "Text child 2 stolbes 2");
-    child3->setText(3, "Text child 3 stolbes 3");
-
-    item->addChild(child0);
-    item->addChild(child1);
-    item->addChild(child2);
-    item->addChild(child3);
-    */
+    R->addChild(childRow9);*/
 }
 
 void MainWindow::on_actionNew_triggered(){
@@ -268,9 +216,7 @@ void MainWindow::on_actionNew_triggered(){
 
 void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column){
     selectedItem = item;
-    qDebug()<<"CLICK GOT YEETED!";
-    //qDebug()<<column;
-    //qDebug()<<item->text(column);
+    selectedColumn = column;
 }
 
 void MainWindow::on_actionEdit_triggered(){
@@ -278,11 +224,11 @@ void MainWindow::on_actionEdit_triggered(){
     // It is used to know if an item is top level or not.
     if(!selectedItem->parent()){
         if(selectedItem == root){
-            qDebug()<<"ROOT IS SELECTED!";
+            subWindow->exec();
         }
     }
     else{
-        ui->statusBar->showMessage("Можно редактировать только введённые IP",3000);
+        ui->statusBar->showMessage("Можно редактировать только Initial IP",3000);
     }
     //ui->treeWidget->editItem(selectedItem);
 }
@@ -300,13 +246,24 @@ void MainWindow::on_actionAggregate_triggered(){
         switch(userChoise){
         case QMessageBox::Yes:{ // yes was clicked
             QTreeWidgetItem *newTopLvlItem = new QTreeWidgetItem;
-            IPClass newIP;
-            newIP.setIP(selectedItem->text(0));
-            newIP.setMask(selectedItem->text(0));
+            IPClass newIP; // create new ip, fill it with calculated data
+            byte_t tempMask;
+            newIP.setIP(selectedItem->text(selectedColumn));
+            newIP.setMask(selectedItem->text(selectedColumn));
             newIP.calcIPData();
+            tempMask = newIP.getMask();
+
+            newTopLvlItem->setText(1, "Aggregated"); // add new top level item
             ui->treeWidget->addTopLevelItem(newTopLvlItem);
-            insert(newTopLvlItem, newIP);
-            vecOfTopLevelItems->push_back(*newTopLvlItem);
+            insert(newTopLvlItem, newIP); // insert basic details
+            newIP.setUserInputHosts(InitialIP.getUserInputHosts()); // to make the same bintree
+            produceTree(newIP, newTopLvlItem); // build the aggregated lower part of the tree
+            vecOfTopLevelItems.push_back(*newTopLvlItem);
+
+
+            root->removeChild(selectedItem->parent());
+            delete selectedItem->parent();
+            produceTree(InitialIP, root, tempMask); // reproduce tree for InitIP with new changes
             return;
         }
         case QMessageBox::No: // cancel clicked
@@ -316,11 +273,7 @@ void MainWindow::on_actionAggregate_triggered(){
         }
     }
     else{
-        ui->statusBar->showMessage("Агрегировать можно только IP в Tree for hosts",3000);
+        ui->statusBar->showMessage("Агрегировать можно только IP в Initial IP -> Tree for hosts",3000);
     }
-}
-
-void MainWindow::on_actiondisaggregate_triggered(){
-
 }
 
