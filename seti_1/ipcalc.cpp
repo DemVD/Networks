@@ -1,5 +1,6 @@
 #include "ipcalc.h"
 
+
 IPClass::IPClass(){
     IP = {0,0,0,0}; // Резервируем 4 элемента типа byte_t for IP
     MaskVectorBits = {0,0,0,0}; // Резервируем 4 элемента типа byte_t for MASK
@@ -7,6 +8,8 @@ IPClass::IPClass(){
     BroadCast = {0,0,0,0};
     MinIPAdress = {0,0,0,0};
     MaxIPAdress = {0,0,0,0};
+
+    setRFCVect(); // creates a vector with defined rfcs
 }
 
 void IPClass::setIP(const byte_t b0, const byte_t b1,
@@ -620,78 +623,59 @@ vector<IPClass> IPClass::produceOneLevelBranch(){
     }
 
     return vecPair;
-    /*
-    vector<IPClass> vecOfIPs; // vec with two ip objects for one level
-    IPClass ipClassTempObj; // two ip objects
-    unsigned bits = 32-(Mask+1);
-    unsigned octetVal = 0;
+}
 
-    if(Mask < 8){
-        bits += 24;
-        unsigned hostsNum = pow(2,bits);
-        while(octetVal<255){
-            ipClassTempObj.setIP(octetVal, 255, 255, 255 );
-            ipClassTempObj.setMask(Mask+1);
-            ipClassTempObj.calcIPData();
-            vecOfIPs.push_back(ipClassTempObj);
-            octetVal+=hostsNum;
-        }
-    }
-    else if(Mask < 16){
-        bits += 16;
-        unsigned hostsNum = pow(2,bits);
-        while(octetVal<255){
-            ipClassTempObj.setIP(IP[0], octetVal, 255, 255 );
-            ipClassTempObj.setMask(Mask+1);
-            ipClassTempObj.calcIPData();
-            vecOfIPs.push_back(ipClassTempObj);
-            octetVal+=hostsNum;
-        }
-    }
-    else if(Mask < 24){
-        bits += 8;
-        unsigned hostsNum = pow(2,bits);
-        while(octetVal<255){
-            ipClassTempObj.setIP(IP[0], IP[1], octetVal, 255 );
-            ipClassTempObj.setMask(Mask+1);
-            ipClassTempObj.calcIPData();
-            vecOfIPs.push_back(ipClassTempObj);
-            octetVal+=hostsNum;
-        }
-    }
-    else if(Mask < 32){
-        unsigned hostsNum = pow(2,bits);
-        while(octetVal<255){
-            ipClassTempObj.setIP(IP[0], IP[1], IP[2], octetVal );
-            ipClassTempObj.setMask(Mask+1);
-            ipClassTempObj.calcIPData();
-            vecOfIPs.push_back(ipClassTempObj);
-            octetVal+=hostsNum;
-        }
-    }
-    else{
-        vecOfIPs.push_back(ipClassTempObj);
-    }
-
-    return vecOfIPs;
+void IPClass::checkRFC(const IPClass ipVar){
 
 
-    for(unsigned i=0;i<=tempIPsVect.size();i+=2){
-        ipClassTempObj.setIP(tempIPsVect[i]);
-        ipClassTempObj.setMask(Mask);
-        ipClassTempObj.calcIPData();
-        vecOfIPs.push_back(ipClassTempObj);
-    }
 
-    // binary is not an option.. ARRGHHHHH
-    ipClassObj1.setIP(IP);
-    ipClassObj1.setMask(Mask);
-    ipClassObj1.calcIPData();
-    vecOfIPs.push_back(ipClassObj1);
+}
 
-    vector<byte_t> ipVec = ipClassObj1.getIP();
-    ipClassObj2.setIP(ipVec[0], ipVec[1], ipVec[2], ipVec[3]+=pow(2,bits));
-    ipClassObj2.setMask(Mask);
-    ipClassObj2.calcIPData();
-    vecOfIPs.push_back(ipClassObj2)*/
+void IPClass::setRFCVect(){
+    // should be called once
+    // {IpQStr, RfcDescrQStr}
+    vecPairs_IpRfc.push_back({"192.0.2.0/24 192.0.2.255/24",
+    "RFC 5737, (TEST-NET-1) reserved for documentation."});
+    vecPairs_IpRfc.push_back({"198.51.100.0/24 198.51.100.255/24",
+    "RFC 5737, (TEST-NET-2) reserved for documentation."});
+    vecPairs_IpRfc.push_back({"203.0.113.0/24 203.0.113.255/24",
+    "RFC 5737, (TEST-NET-3) reserved for documentation."});
+
+    vecPairs_IpRfc.push_back({"10.0.0.0/8 10.255.255.255/8",
+    "RFC 3330,1918, reserved by IANA for private internets."});
+    vecPairs_IpRfc.push_back({"172.16.0.0/12 172.31.255.255/12",
+    "RFC 3330,1918, reserved by IANA for private internets."});
+    vecPairs_IpRfc.push_back({"192.168.0.0/16 192.168.255.255/16",
+    "RFC 3330,1918, reserved by IANA for private internets."});
+
+    vecPairs_IpRfc.push_back({"192.88.99.0/24 192.88.99.255/24",
+    "RFC 3330,3068, allocated for use as 6to4 relay anycast addresses."});
+
+    vecPairs_IpRfc.push_back({"169.254.0.0/16 169.254.255.255/16",
+    "RFC 3927, reserved for Link-Local addressing."});
+
+    vecPairs_IpRfc.push_back({"224.0.0.0/24 224.0.0.253/24",
+    "RFC 1122, reserved for 'all-hosts' group."});
+
+    // found in rfc 3330
+    vecPairs_IpRfc.push_back({"0.0.0.0/8 0.255.255.255/8",
+    "RFC 3330,1700, reserved by IANA for source hosts on 'this' network."});
+    vecPairs_IpRfc.push_back({"127.0.0.0/8 127.255.255.255/8",
+    "RFC 3330,1700, reserved for use as the Internet host loopback address."});
+    vecPairs_IpRfc.push_back({"128.0.0.0/16 128.0.255.255/16",
+    "RFC 3330, reserved by IANA as lowest of the former Class B addresses."});
+    vecPairs_IpRfc.push_back({"191.255.0.0/16 191.255.255.255/16",
+    "RFC 3330, reserved by IANA as highest to the former Class B addresses."});
+    vecPairs_IpRfc.push_back({"192.0.0.0/24 192.0.0.255/24",
+    "RFC 3330, reserved by IANA as lowest of the former Class C addresses."});
+    vecPairs_IpRfc.push_back({"192.0.2.0/24 192.0.2.255/24",
+    "RFC 3330, reserved by IANA as 'TEST-NET' - documentation and example code."});
+    vecPairs_IpRfc.push_back({"198.18.0.0/15 198.19.255.255/15",
+    "RFC 3330,2544, allocated for use in benchmark tests of network interconnect devices."});
+    vecPairs_IpRfc.push_back({"223.255.255.0/24 223.255.255.255/24",
+    "RFC 3330, reserved by IANA as highest of the former Class C addresses"});
+    vecPairs_IpRfc.push_back({"224.0.0.0/4 239.255.255.255/4",
+    "RFC 3330,3171, allocated for use in IPv4 multicast address assignments."});
+    vecPairs_IpRfc.push_back({"240.0.0.0/4 255.255.255.255/4",
+    "RFC 3330,1700, reserved for future use."});
 }

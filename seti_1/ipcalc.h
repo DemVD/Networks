@@ -9,6 +9,7 @@
 
 typedef uint8_t byte_t;
 
+
 using namespace std;
 
 
@@ -26,6 +27,10 @@ private:
     unsigned AvailableHosts; // количество свободных адресов
     unsigned UserInputHosts;
     bool isRightSon;
+
+    vector<vector<QString>> vecPairs_IpRfc; // {IpQStr, RfcDescrQStr}
+    void setRFCVect(); // should be called once
+
 public:
     IPClass(); // констр-р по умолч.
 
@@ -39,7 +44,6 @@ public:
     void calcIPData();
 
     // more set ip data methods
-    bool compareIPs(const IPClass &IPVar) const; // checks if IPvar is greater Or equal to the inside IP
     void setMask(byte_t m);
     void setMask(QString s);
     void setSubNetID(vector<byte_t> MaskVector);
@@ -76,8 +80,10 @@ public:
     QString getQStrUserInputHosts() const;
 
     // calculation and logic methods
+    bool compareIPs(const IPClass &IPVar) const; // checks if IPvar is greater Or equal to the inside IP
     void produceAdressForHosts();
     vector<IPClass> produceOneLevelBranch();
+    void checkRFC(const IPClass ipVar);
 };
 
 #endif // IPCALC_H
