@@ -30,6 +30,8 @@ private slots:
     void on_actionEdit_triggered();
     void on_actionAggregate_triggered();
 
+    void on_actionDelete_triggered();
+
 private:
     Ui::MainWindow *ui; // main ui
     subWindowEnterIP *subWindow; // second window
@@ -39,7 +41,7 @@ private:
     int selectedColumn;
     vector<QTreeWidgetItem> vecOfTopLevelItems; // top level items
     vector<QTreeWidgetItem> vecOfTreeIpItems; // tree of ips
-    QTreeWidgetItem *treeForHostsROOT = new QTreeWidgetItem; // has the root of the bintree
+    QTreeWidgetItem *treeForHostsROOT = new QTreeWidgetItem; // has the root of the initial bintree
     bool empty; // ui empty flag
 };
 

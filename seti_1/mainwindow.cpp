@@ -253,46 +253,112 @@ void MainWindow::on_actionEdit_triggered(){
 }
 
 void MainWindow::on_actionAggregate_triggered(){
-    if(selectedItem->parent() == treeForHostsROOT){
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Aggregate");
-        msgBox.setText("Aggregate subnets under selected subnet?");
-        msgBox.setStandardButtons(QMessageBox::Yes);
-        msgBox.setDefaultButton(QMessageBox::Yes);
-        msgBox.addButton(QMessageBox::No);
-        msgBox.setIcon(QMessageBox::Question);
-        int userChoise = msgBox.exec();
-        switch(userChoise){
-        case QMessageBox::Yes:{ // yes was clicked
-            QTreeWidgetItem *newTopLvlItem = new QTreeWidgetItem;
-            IPClass newIP; // create new ip, fill it with calculated data
-            byte_t tempMask;
-            newIP.setIP(selectedItem->text(selectedColumn));
-            newIP.setMask(selectedItem->text(selectedColumn));
-            newIP.calcIPData();
-            tempMask = newIP.getMask();
+    if(selectedItem->parent()){
+        if(selectedItem->parent()->text(0) == treeForHostsROOT->text(0)){
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Aggregate");
+            msgBox.setText("Aggregate subnets under selected subnet?");
+            msgBox.setStandardButtons(QMessageBox::Yes);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setIcon(QMessageBox::Question);
+            int userChoise = msgBox.exec();
+            switch(userChoise){
+            case QMessageBox::Yes:{ // yes was clicked
+                QTreeWidgetItem *newTopLvlItem = new QTreeWidgetItem;
+                IPClass newIP; // create new ip, fill it with calculated data
+                newIP.setIP(selectedItem->text(selectedColumn));
+                newIP.setMask(selectedItem->text(selectedColumn));
+                newIP.calcIPData();
 
-            newTopLvlItem->setText(1, "Aggregated"); // add new top level item
-            ui->treeWidget->addTopLevelItem(newTopLvlItem);
-            insert(newTopLvlItem, newIP); // insert basic details
-            newIP.setUserInputHosts(InitialIP.getUserInputHosts()); // to make the same bintree
-            produceTree(newIP, newTopLvlItem); // build the aggregated lower part of the tree
-            vecOfTopLevelItems.push_back(*newTopLvlItem);
+                newTopLvlItem->setText(1, "Aggregated"); // add new top level item
+                ui->treeWidget->addTopLevelItem(newTopLvlItem);
+                insert(newTopLvlItem, newIP); // insert basic details
+                newIP.setUserInputHosts(InitialIP.getUserInputHosts()); // to make the same bintree
+                produceTree(newIP, newTopLvlItem); // build the aggregated lower part of the tree
+                vecOfTopLevelItems.push_back(*newTopLvlItem);
 
-
-            root->removeChild(selectedItem->parent());
-            delete selectedItem->parent();
-            produceTree(InitialIP, root, tempMask); // reproduce tree for InitIP with new changes
-            return;
+                if(selectedItem->parent()->parent()->text(1) == "Initial IP"){
+                    treeForHostsROOT = selectedItem->parent();
+                }
+                return;
+            }
+            case QMessageBox::No: // cancel clicked
+                return;
+            default:
+                return;
+            }
         }
-        case QMessageBox::No: // cancel clicked
-            return;
-        default:
-            return;
+        for(QTreeWidgetItem elem:vecOfTopLevelItems){
+            if(selectedItem->parent()->parent()->text(0) == elem.text(0)){
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("Aggregate");
+                msgBox.setText("Aggregate subnets under selected subnet?");
+                msgBox.setStandardButtons(QMessageBox::Yes);
+                msgBox.setDefaultButton(QMessageBox::Yes);
+                msgBox.addButton(QMessageBox::No);
+                msgBox.setIcon(QMessageBox::Question);
+                int userChoise = msgBox.exec();
+                switch(userChoise){
+                case QMessageBox::Yes:{ // yes was clicked
+                    QTreeWidgetItem *newTopLvlItem = new QTreeWidgetItem;
+                    IPClass newIP; // create new ip, fill it with calculated data
+                    newIP.setIP(selectedItem->text(selectedColumn));
+                    newIP.setMask(selectedItem->text(selectedColumn));
+                    newIP.calcIPData();
+
+                    newTopLvlItem->setText(1, "Aggregated"); // add new top level item
+                    ui->treeWidget->addTopLevelItem(newTopLvlItem);
+                    insert(newTopLvlItem, newIP); // insert basic details
+                    newIP.setUserInputHosts(InitialIP.getUserInputHosts()); // to make the same bintree
+                    produceTree(newIP, newTopLvlItem); // build the aggregated lower part of the tree
+                    vecOfTopLevelItems.push_back(*newTopLvlItem);
+                    return;
+                }
+                case QMessageBox::No: // cancel clicked
+                    return;
+                default:
+                    return;
+                }
+            }
         }
-    }
-    else{
-        ui->statusBar->showMessage("Агрегировать можно только IP в Initial IP -> Tree for hosts",3000);
+        ui->statusBar->showMessage("Можно редактировать только Initial IP или Aggregated IP.",3000);
     }
 }
 
+
+void MainWindow::on_actionDelete_triggered(){
+    if(selectedItem->parent() == treeForHostsROOT){
+        ui->statusBar->showMessage("Удалять можно только Aggregated IP.",3000);
+    }
+    for(unsigned i=0;i<vecOfTopLevelItems.size();i++){
+        if(selectedItem->text(0) == vecOfTopLevelItems[i].text(0)){
+            QMessageBox msgBox;
+            msgBox.setWindowTitle("Delete");
+            msgBox.setText("Delete selected subnet?");
+            msgBox.setStandardButtons(QMessageBox::Yes);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            msgBox.addButton(QMessageBox::No);
+            msgBox.setIcon(QMessageBox::Question);
+            int userChoise = msgBox.exec();
+            switch(userChoise){
+            case QMessageBox::Yes:{ // yes was clicked
+                vector<QTreeWidgetItem> tempVec;
+                for(auto elem:vecOfTopLevelItems){
+                    if(elem.text(0) != selectedItem->text(0)){
+                        tempVec.push_back(elem);
+                    }
+                }
+                delete ui->treeWidget->takeTopLevelItem(i+1);
+                vecOfTopLevelItems = tempVec;
+                return;
+            }
+            case QMessageBox::No: // cancel clicked
+                return;
+            default:
+                return;
+            }
+        }
+    }
+    ui->statusBar->showMessage("Удалять можно только Aggregated subnets.",3000);
+}

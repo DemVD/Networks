@@ -53,6 +53,10 @@
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave_as"/>
+    <addaction name="separator"/>
+    <addaction name="actionEdit"/>
+    <addaction name="actionAggregate"/>
+    <addaction name="actionDelete"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -60,6 +64,7 @@
     </property>
     <addaction name="actionEdit"/>
     <addaction name="actionAggregate"/>
+    <addaction name="actionDelete"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -92,6 +97,7 @@
    <addaction name="separator"/>
    <addaction name="actionEdit"/>
    <addaction name="actionAggregate"/>
+   <addaction name="actionDelete"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="cursor">
@@ -162,6 +168,18 @@
    </property>
    <property name="toolTip">
     <string>Agregate subnets into selected subnet..</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/del1.png</normaloff>:/new/prefix1/del1.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Initial IP or Aggregated Subnet..</string>
    </property>
   </action>
  </widget>
