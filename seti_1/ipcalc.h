@@ -14,6 +14,10 @@ using namespace std;
 
 
 class IPClass{
+protected:
+    void setRFCVect(); // should be called once
+
+    friend class MainWindow;
 private:
     vector<byte_t> IP; // Пустой вектор типа byte_t
     byte_t Mask; // Маска
@@ -29,7 +33,6 @@ private:
     bool isRightSon;
 
     vector<vector<QString>> vecPairs_IpRfc; // {IpQStr, RfcDescrQStr}
-    void setRFCVect(); // should be called once
 
 public:
     IPClass(); // констр-р по умолч.
@@ -65,6 +68,7 @@ public:
     unsigned getAvailableSubnetsTAG() const;
     unsigned getAvailableHosts() const;
     bool getIsRightSon() const;
+    vector<vector<QString>>* getVecPairs_IpRfc();
 
     // get QStr methods
     QString getQStrIP() const; // QString
@@ -80,7 +84,9 @@ public:
     QString getQStrUserInputHosts() const;
 
     // calculation and logic methods
-    bool compareIPs(const IPClass &IPVar) const; // checks if IPvar is greater Or equal to the inside IP
+    bool operator>=(IPClass &ipVar);
+    bool operator<=(IPClass &ipVar);
+    bool operator==(IPClass &ipVar);
     void produceAdressForHosts();
     vector<IPClass> produceOneLevelBranch();
     void checkRFC(const IPClass ipVar);

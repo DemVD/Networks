@@ -8,8 +8,6 @@ IPClass::IPClass(){
     BroadCast = {0,0,0,0};
     MinIPAdress = {0,0,0,0};
     MaxIPAdress = {0,0,0,0};
-
-    setRFCVect(); // creates a vector with defined rfcs
 }
 
 void IPClass::setIP(const byte_t b0, const byte_t b1,
@@ -269,29 +267,6 @@ byte_t IPClass::getMask() const{
     return Mask;
 }
 
-// checks if IPVar is greater OR equal to the class IP
-bool IPClass::compareIPs(const IPClass &IPVar) const{
-    if(IP[0] != IPVar.IP[0]){
-        if(IP[0] > IPVar.IP[0]) return false;
-        else return true;
-    }
-    else if(IP[1] != IPVar.IP[1]){
-        if(IP[1] > IPVar.IP[1]) return false;
-        else return true;
-    }
-    else if(IP[2] != IPVar.IP[2]){
-        if(IP[2] > IPVar.IP[2]) return false;
-        else return true;
-    }
-    else if(IP[3] != IPVar.IP[3]){
-        if(IP[3] > IPVar.IP[3]) return false;
-        else return true;
-    }
-    else{
-        return true;
-    }
-}
-
 void IPClass::setMask(byte_t m){
     Mask = m;
 }
@@ -380,6 +355,10 @@ bool IPClass::getIsRightSon() const{
     return isRightSon;
 }
 
+vector<vector<QString>>* IPClass::getVecPairs_IpRfc(){
+    return &vecPairs_IpRfc;
+}
+
 QString IPClass::getQStrIP() const{
     QString QStrIP = convVecToQStr(IP);
     return QStrIP;
@@ -434,6 +413,60 @@ QString IPClass::getQStrAvailableSubnetsTAG() const{
 QString IPClass::getQStrUserInputHosts() const{
     QString QStrUserInputHosts = QString::number(UserInputHosts);
     return QStrUserInputHosts;
+}
+
+bool IPClass::operator>=(IPClass &ipVar){
+    if(this->getIP()[0] < ipVar.getIP()[0]){
+        return false;
+    }
+    else if(this->getIP()[1] < ipVar.getIP()[1]){
+        return false;
+    }
+    else if(this->getIP()[2] < ipVar.getIP()[2]){
+        return false;
+    }
+    else if(this->getIP()[3] < ipVar.getIP()[3]){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+bool IPClass::operator<=(IPClass &ipVar){
+    if(this->getIP()[0] > ipVar.getIP()[0]){
+        return false;
+    }
+    else if(this->getIP()[1] > ipVar.getIP()[1]){
+        return false;
+    }
+    else if(this->getIP()[2] > ipVar.getIP()[2]){
+        return false;
+    }
+    else if(this->getIP()[3] > ipVar.getIP()[3]){
+        return false;
+    }
+    else{
+        return true;
+    }
+}
+
+bool IPClass::operator==(IPClass &ipVar){
+    if(this->getIP()[0] != ipVar.getIP()[0]){
+        return false;
+    }
+    else if(this->getIP()[1] != ipVar.getIP()[1]){
+        return false;
+    }
+    else if(this->getIP()[2] != ipVar.getIP()[2]){
+        return false;
+    }
+    else if(this->getIP()[3] != ipVar.getIP()[3]){
+        return false;
+    }
+    else{
+        return true;
+    }
 }
 
 void IPClass::produceAdressForHosts(){

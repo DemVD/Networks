@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     empty = true;
     connect(subWindow, SIGNAL(signalSubWinRet(vector<QString>)),
             this, SLOT(slotSubWinRet(vector<QString>)));
+    // a heavy vector with RFC banned ips, exists only in InitialIP.
+    InitialIP.setRFCVect();
 }
 
 MainWindow::~MainWindow(){
@@ -69,16 +71,33 @@ void MainWindow::produceTree(IPClass &initIP, QTreeWidgetItem *R, byte_t targetM
 }
 
 void MainWindow::slotSubWinRet(vector<QString> vecQStr){
-    // POSSIBLE CHECK FOR RFC in IPCALC CLASS
     // Create IP var, calc its data, insert into widget
     if(!empty){ // second func call means we're editing
         delete root;
         root = new QTreeWidgetItem;
         ui->treeWidget->clear();
     }
-    empty = false;
     InitialIP.setIP(vecQStr);
     InitialIP.calcIPData();
+
+    // CHECK FOR RFC in IPCALC CLASS
+    QStringList QStrL_ForbiddenIpRange;
+    IPClass ip1, ip2;
+    for(auto elem:*InitialIP.getVecPairs_IpRfc()){
+        QStrL_ForbiddenIpRange = elem[0].split(' '); // gives a vec[2] with ip range
+        ip1.setIP(QStrL_ForbiddenIpRange[0]);
+        ip1.setMask(QStrL_ForbiddenIpRange[0]);
+        ip2.setIP(QStrL_ForbiddenIpRange[1]);
+        ip2.setMask(QStrL_ForbiddenIpRange[1]);
+        if(InitialIP.getMask()==ip1.getMask()){ // Initial mask == forbidden mask
+            if( (InitialIP>=ip1)&&(InitialIP<=ip2) ){ // initial ip in range of forbidden ips
+                ui->statusBar->showMessage("Forbidden IP, "+elem[1],30000);
+                return;
+            }
+        }
+    }
+
+    empty = false;
     root->setBackground(0, QColor(224,224,224,255));
     root->setBackground(1, QColor(224,224,224,255));
     root->setText(1,"Initial IP");
