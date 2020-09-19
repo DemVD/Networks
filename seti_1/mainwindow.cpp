@@ -5,7 +5,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow){
     ui->setupUi(this); // обычные действия констр-ра
+    setWindowIcon(QIcon(":/new/prefix1/diss 3.png"));
+    setWindowTitle("IP Calculator");
+
     subWindow = new subWindowEnterIP(); // иниц-я второго окна
+    subWindow->setWindowIcon(QIcon(":/new/prefix1/diss 3.png"));
+    subWindow->setWindowTitle("IP Input");
     //QTreeWidgetItem *root = new QTreeWidgetItem;
     empty = true;
     connect(subWindow, SIGNAL(signalSubWinRet(vector<QString>)),
@@ -18,8 +23,51 @@ MainWindow::~MainWindow(){
     delete ui;
 }
 
-string MainWindow::saveToFile(){
+void MainWindow::loadFromFile(){
+    QString fileName = QFileDialog::getOpenFileName(this,
+            tr("Open IPs file"), "",
+            tr("txt (*.txt);;All Files (*)"));
+    if(fileName.isEmpty()){
+            ui->statusBar->showMessage("Empty Filename. Unable to open file..",6000);
+    }
+    else{
+        QFile fileIn(fileName);
 
+        if (!fileIn.open(QIODevice::ReadOnly)) {
+            ui->statusBar->showMessage("Unable to open file..",6000);
+            return;
+        }
+        QTextStream streamIn(&fileIn);
+        QString QStrTemp;
+        streamIn>>QStrTemp;
+        InitialIP.setIP(QStrTemp);
+        InitialIP.setMask(QStrTemp);
+        streamIn>>QStrTemp;
+        InitialIP.setUserInputHosts(QStrTemp);
+        InitialIP.calcIPData();
+        empty = false;
+        root->setBackground(0, QColor(224,224,224,255));
+        root->setBackground(1, QColor(224,224,224,255));
+        root->setText(1,"Initial IP");
+        ui->treeWidget->addTopLevelItem(root);
+        insert(root, InitialIP);
+        produceTree(InitialIP, root);
+        streamIn>>QStrTemp;
+        while(QStrTemp.length() > 0){
+            QTreeWidgetItem *itm = new QTreeWidgetItem;
+            IPClass tempIpObj;
+            tempIpObj.setIP(QStrTemp);
+            tempIpObj.setMask(QStrTemp);
+            tempIpObj.calcIPData();
+            itm->setText(1, "Aggregated"); // add new top level item
+            ui->treeWidget->addTopLevelItem(itm);
+            insert(itm, tempIpObj); // insert basic details
+            tempIpObj.setUserInputHosts(InitialIP.getUserInputHosts()); // to make the same bintree
+            produceTree(tempIpObj, itm); // build the aggregated lower part of the tree
+            vecOfTopLevelItems.push_back(*itm);
+            streamIn>>QStrTemp;
+        }
+    }
 }
 
 void MainWindow::produceTree(IPClass &initIP, QTreeWidgetItem *R, byte_t targetMask){
@@ -212,6 +260,8 @@ void MainWindow::on_actionNew_triggered(){
         int userChoise = msgBox.exec();
         switch(userChoise){
         case QMessageBox::Save: // save was clicked
+            on_actionSave_as_triggered(); // call for save slot
+            root = new QTreeWidgetItem;
             ui->treeWidget->clear();
             ui->treeWidget->setColumnCount(2);
             return;
@@ -361,4 +411,75 @@ void MainWindow::on_actionDelete_triggered(){
         }
     }
     ui->statusBar->showMessage("Удалять можно только Aggregated subnets.",3000);
+}
+
+void MainWindow::on_actionSave_as_triggered(){
+    if(!empty){ // changes in UI were made
+        QString fileName = QFileDialog::getSaveFileName(this,
+                tr("Save IPs"), "/home/",
+                tr("txt (*.txt);;All Files (*)"));
+        if(fileName.isEmpty()){
+            ui->statusBar->showMessage("Empty File Name. Unable to save file..",6000);
+            return;
+        }
+        else{
+            QFile fileOut(fileName);
+            if(!fileOut.open(QIODevice::WriteOnly)) {
+                ui->statusBar->showMessage("Can't open file. Unable to save file..",6000);
+                return;
+            }
+            QTextStream streamOut(&fileOut);
+            streamOut << root->text(0);
+            streamOut << " ";
+            streamOut << InitialIP.getUserInputHosts();
+            streamOut << "\r\n";
+            for(auto elem:vecOfTopLevelItems){
+                streamOut << elem.text(0);
+                streamOut << "\r\n";
+            }
+        }
+    }
+    else{
+        ui->statusBar->showMessage("Nothing to save..",6000);
+    }
+}
+
+void MainWindow::on_actionOpen_triggered(){
+    if(!empty){ // changes were made
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Open file...");
+        msgBox.setText("Save changes to previous file?");
+        msgBox.setStandardButtons(QMessageBox::Save);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        msgBox.addButton(tr("Don't save"), QMessageBox::NoRole);
+        msgBox.addButton(QMessageBox::Cancel);
+        msgBox.setIcon(QMessageBox::Warning);
+        int userChoise = msgBox.exec();
+        switch(userChoise){
+        case QMessageBox::Save: // save was clicked
+            on_actionSave_as_triggered(); // call for save slot
+            root = new QTreeWidgetItem;
+            ui->treeWidget->clear();
+            ui->treeWidget->setColumnCount(2);
+            loadFromFile();
+            return;
+        case QMessageBox::Cancel: // cancel clicked
+            return;
+        case 0: // dont save clicked
+            ui->treeWidget->clear();
+            root = new QTreeWidgetItem;
+            ui->treeWidget->setColumnCount(2);
+            loadFromFile();
+            break;
+        default:
+            ui->treeWidget->clear();
+            root = new QTreeWidgetItem;
+            ui->treeWidget->setColumnCount(2);
+            loadFromFile();
+            return;
+        }
+    }
+    else{
+        loadFromFile();
+    }
 }

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QTreeWidget>
+#include <QFileDialog>
 #include "subwindowenterip.h"
 
 namespace Ui {
@@ -16,7 +17,7 @@ class MainWindow : public QMainWindow{
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    string saveToFile();
+    void loadFromFile();
     void produceTree(IPClass &initIP, QTreeWidgetItem *R, byte_t targetMask = 0);
     void insert(QTreeWidgetItem *R, const IPClass &IP);
 
@@ -29,8 +30,9 @@ private slots:
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void on_actionEdit_triggered();
     void on_actionAggregate_triggered();
-
     void on_actionDelete_triggered();
+    void on_actionSave_as_triggered();
+    void on_actionOpen_triggered();
 
 private:
     Ui::MainWindow *ui; // main ui

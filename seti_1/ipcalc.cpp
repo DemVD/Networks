@@ -316,6 +316,10 @@ void IPClass::setUserInputHosts(unsigned inp){
     UserInputHosts = inp;
 }
 
+void IPClass::setUserInputHosts(QString inp){
+    UserInputHosts = inp.toInt();
+}
+
 vector<int> IPClass::convVecByteToVecInt(const vector<byte_t> vecOfByte) const{
     vector<int> vecOfInts = {int(vecOfByte[0]), int(vecOfByte[1]),
                              int(vecOfByte[2]), int(vecOfByte[3])};

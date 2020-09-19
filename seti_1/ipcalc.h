@@ -54,6 +54,7 @@ public:
     void setMinIPAdress(vector<byte_t> SNID);
     void setMaxIPAdress(vector<byte_t> BC);
     void setUserInputHosts(unsigned inp);
+    void setUserInputHosts(QString inp);
 
     // conversion methods
     vector<int> convVecByteToVecInt(const vector<byte_t> vecOfByte) const;

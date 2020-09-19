@@ -179,7 +179,7 @@
     <string>Delete</string>
    </property>
    <property name="toolTip">
-    <string>Delete Initial IP or Aggregated Subnet..</string>
+    <string>Delete Aggregated Subnet..</string>
    </property>
   </action>
  </widget>
